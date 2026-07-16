@@ -1,7 +1,63 @@
 <!DOCTYPE html>
-<html>
-  <body>
-    <h2>Login</h2>
-    <a href="/.auth/login/aad">Login with Microsoft</a>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - 9th PoCo Scouts Inventory</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    .login-btn {
+      display: block;
+      width: 280px;
+      margin: 12px auto;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+
+    .ms-btn {
+      background-color: #0078D4; /* Microsoft blue */
+    }
+
+    .google-btn {
+      background-color: #DB4437; /* Google red */
+    }
+
+    .login-btn:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Sign in to 9th PoCo Scouts Inventory</h2>
+
+  <button class="login-btn ms-btn" onclick="login('aad')">
+    Sign in with Microsoft
+  </button>
+
+  <button class="login-btn google-btn" onclick="login('google')">
+    Sign in with Google
+  </button>
+
+  <script>
+    function login(provider) {
+      window.location.href = `/.auth/login/${provider}`;
+    }
+  </script>
+
+</body>
 </html>
