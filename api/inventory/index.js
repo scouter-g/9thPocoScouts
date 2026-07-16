@@ -1,5 +1,4 @@
 const { TableClient } = require("@azure/data-tables");
-const { verifyToken } = require("../_auth");   // ⭐ NEW: custom JWT auth
 
 module.exports = async function (context, req) {
   try {
@@ -19,10 +18,6 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // ⭐ You now have:
-    // user.userDetails  → email
-    // user.userRoles    → ["anonymous", "authenticated"]
-
     // ⭐ Equipment table
     const tableClient = TableClient.fromConnectionString(
       process.env.STORAGE_CONNECTION_STRING,
@@ -35,7 +30,7 @@ module.exports = async function (context, req) {
     }
 
     const inventory = items.map(item => ({
-      id: item.rowKey,                     // unique ID
+      id: item.rowKey,
       name: item.name || null,
       category: item.category || null,
       status: item.status || "available",
