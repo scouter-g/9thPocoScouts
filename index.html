@@ -1,6 +1,93 @@
 <!DOCTYPE html>
-<html>
-  <body>
-    <h1>9th Poco Scouts Test Deployment</h1>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9th PoCo Scouts Equipment Inventory</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>9th PoCo Scouts Equipment Inventory</h1>
+    <div class="user-info">
+      <span id="userDisplay">Logged in as ...</span>
+      <button id="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ADMIN BUTTONS -->
+    <div id="adminButtons" class="admin-only">
+      <button class="button" onclick="openAddModal()">Add New Item</button>
+      <button class="button" onclick="exportAudit()">Export Audit CSV</button>
+    </div>
+
+    <!-- FILTER BUTTON -->
+    <div class="filter-row">
+      <button id="filterToggle" class="button" onclick="toggleMyItems()">My Checked Out Items</button>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <input
+      id="searchBox"
+      class="search-box"
+      type="text"
+      placeholder="Search items..."
+      oninput="loadInventory()"
+    />
+
+    <!-- CATEGORY CONTAINER (JS POPULATES THIS) -->
+    <div id="categoryContainer"></div>
+
+  </main>
+
+  <!-- ADD / EDIT MODAL -->
+  <div id="itemModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add Item</h2>
+
+      <label>Name</label>
+      <input id="itemName" type="text" />
+
+      <label>Category</label>
+      <select id="itemCategory">
+        <option value="Cooking">Cooking</option>
+        <option value="Tents">Tents</option>
+        <option value="Lighting">Lighting</option>
+        <option value="First Aid">First Aid</option>
+        <option value="Tools">Tools</option>
+      </select>
+
+      <label>Status</label>
+      <select id="itemStatus">
+        <option value="available">Available</option>
+        <option value="checked_out">Checked Out</option>
+      </select>
+
+      <div class="modal-actions">
+        <button class="button" onclick="closeModal()">Cancel</button>
+        <button class="button" onclick="saveItem()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY MODAL -->
+  <div id="historyModal" class="modal">
+    <div class="modal-content">
+      <h2>Item History</h2>
+      <div id="historyList"></div>
+      <div class="modal-actions">
+        <button class="button" onclick="closeHistory()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="app.js"></script>
+
+</body>
 </html>

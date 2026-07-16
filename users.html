@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Management</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>User Management</h1>
+    <a href="/index.html" class="button">Back to Inventory</a>
+  </header>
+
+  <main style="padding:20px;">
+    <h2>Approved Users</h2>
+
+    <table id="usersTable" class="user-table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Display Name</th>
+          <th>Role</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h2>Add New User</h2>
+    <div class="row">
+      <input id="newUserEmail" type="email" placeholder="email@example.com" class="input">
+      <input id="newUserName" type="text" placeholder="Display Name" class="input">
+      <select id="newUserRole" class="input">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button class="button" onclick="addUser()">Add User</button>
+    </div>
+  </main>
+
+  <script>
+    async function loadUsers() {
+      const res = await fetch("/api/users-list");
+      const users = await res.json();
+
+      const tbody = document.querySelector("#usersTable tbody");
+      tbody.innerHTML = "";
+
+      users.forEach(u => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${u.email}</td>
+          <td>${u.displayName}</td>
+          <td>${u.role}</td>
+          <td>${u.createdAt}</td>
+          <td>
+            <button class="button" onclick="promote('${u.email}')">Promote</button>
+            <button class="button" onclick="demote('${u.email}')">Demote</button>
+            <button class="button admin-delete" onclick="removeUser('${u.email}')">Delete</button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    async function addUser() {
+      const email = document.getElementById("newUserEmail").value.trim();
+      const name = document.getElementById("newUserName").value.trim();
+      const role = document.getElementById("newUserRole").value;
+
+      if (!email || !name) {
+        alert("Please fill out all fields.");
+        return;
+      }
+
+      await fetch("/api/users-add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, displayName: name, role })
+      });
+
+      loadUsers();
+    }
+
+    async function removeUser(email) {
+      if (!confirm("Remove this user?")) return;
+
+      await fetch(`/api/users-delete?email=${email}`, { method: "DELETE" });
+      loadUsers();
+    }
+
+    async function promote(email) {
+      await fetch("/api/users-update-role", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, role: "admin" })
+      });
+      loadUsers();
+    }
+
+    async function demote(email) {
+      await fetch("/api/users-update-role", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, role: "user" })
+      });
+      loadUsers();
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

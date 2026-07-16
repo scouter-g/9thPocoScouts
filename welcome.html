@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checking Access...</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div style="padding:20px; text-align:center;">
+    <h2>Checking your access...</h2>
+    <p id="status">Please wait...</p>
+  </div>
+
+<script>
+async function checkAccess() {
+  const status = document.getElementById("status");
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    console.warn("No token found in localStorage");
+    status.textContent = "No token found. Redirecting to login...";
+    window.location.href = "/login.html";
+    return;
+  }
+
+  status.textContent = "Validating your access...";
+
+  let res;
+  try {
+    res = await fetch("/api/authorize", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token
+      },
+      credentials: "include"
+    });
+  } catch (err) {
+    console.error("Network error calling /api/authorize:", err);
+    status.textContent = "Network error. Redirecting to login...";
+    window.location.href = "/login.html";
+    return;
+  }
+
+  console.log("Authorize response status:", res.status);
+
+  if (!res.ok) {
+    status.textContent = "Access denied (HTTP " + res.status + "). Redirecting...";
+    window.location.href = "/login.html";
+    return;
+  }
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (err) {
+    console.error("Failed to parse JSON:", err);
+    status.textContent = "Invalid server response. Redirecting...";
+    window.location.href = "/login.html";
+    return;
+  }
+
+  console.log("Authorize response JSON:", data);
+
+  if (!data.allowed) {
+    status.textContent = "You are not authorized. Redirecting...";
+    window.location.href = "/login.html";
+    return;
+  }
+
+  // SUCCESS
+  status.textContent = "Access granted!";
+  console.log("Authorized:", data);
+
+  // OPTIONAL: redirect to your main app page
+  // window.location.href = "/index.html";
+}
+
+checkAccess();
+</script>
+
+</body>
+</html>

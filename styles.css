@@ -1,0 +1,348 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f5f5f5;
+}
+
+header {
+  background: #5a2ca0;
+  color: white;
+  padding: 16px;
+}
+
+header h1 {
+  margin: 0 0 8px 0;
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#logout-btn {
+  background: #ddd;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+main {
+  padding: 16px;
+}
+
+h2 {
+  margin: 0 0 12px 0;
+}
+
+/* CARD LAYOUT */
+.inventory-card {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.inventory-card .row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.inventory-card .label {
+  font-weight: 600;
+  color: #444;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.inventory-card .value {
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.inventory-header {
+  margin-bottom: 14px;
+}
+
+/* SPECIAL CASE: Checked Out By on its own line */
+.inventory-card .checked-out-by {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.inventory-card .checked-out-by .value {
+  padding-left: 12px;
+  margin-top: 2px;
+  text-align: left;
+}
+
+/* Uniform spacing between action buttons */
+.inventory-card .action-row .button {
+  margin-right: 8px;
+}
+
+.inventory-card .action-row .button:last-child {
+  margin-right: 0;
+}
+
+
+/* BUTTONS */
+.button {
+  background: #5a2ca0;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.button:hover {
+  background: #3e147e;
+}
+
+.button:last-child {
+  margin-right: 0;
+}
+
+/* Filter toggle default spacing */
+#filterToggle {
+  margin-bottom: 14px;
+}
+
+/* Highlight user's items */
+.my-item {
+  border: 2px solid #5a2ca0;
+  background: #f3eaff;
+}
+
+/* Search box */
+.search-box {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* ============================
+   MOBILE OPTIMIZED LAYOUT
+   ============================ */
+@media (max-width: 600px) {
+
+  /* Make cards tighter */
+  .inventory-card {
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+
+  /* Reduce row spacing */
+  .inventory-card .row {
+    margin-bottom: 4px;
+  }
+
+  /* Labels smaller + left aligned */
+  .inventory-card .label {
+    font-size: 0.85rem;
+    margin-right: 6px;
+  }
+
+  /* Values slightly smaller */
+  .inventory-card .value {
+    font-size: 0.9rem;
+  }
+
+  /* Checked Out By indentation */
+  .inventory-card .checked-out-by .value {
+    padding-left: 10px;
+  }
+
+  /* Make buttons thumb-friendly */
+  .button {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  /* Search box spacing */
+  .search-box {
+    margin-bottom: 12px;
+  }
+
+  /* --- MOBILE BUTTON FIXES --- */
+
+  /* Admin buttons stay on first row */
+  .admin-only {
+    margin-bottom: 8px;
+  }
+
+  /* Force filter button onto its own row with spacing */
+  #filterToggle {
+    display: inline-block;   /* shrink to fit text */
+    width: auto;             /* no forced width */
+    margin-top: 12px;        /* spacing from admin buttons */
+    margin-bottom: 12px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  /* Center the button row */
+    .filter-row {
+    display: flex;
+    justify-content: flex-start;   /* left-aligns the button */
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 12px;
+  }
+}
+
+  /* Shorter label on mobile */
+  #filterToggle {
+    font-size: 0.9rem;
+  }
+
+  /* Highlighted card border thicker on mobile */
+  .my-item {
+    border-width: 3px;
+  }
+
+
+/* Admin buttons hidden by default */
+.admin-only {
+  display: none;
+}
+
+/* Admin edit/delete buttons */
+.admin-edit {
+  background: #28a745;
+  margin-left: 8px;
+}
+
+.admin-delete {
+  background: #dc3545;
+  margin-left: 8px;
+}
+
+/* Modal Background */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Modal Box */
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.modal-actions .button {
+  margin-left: 10px;
+}
+
+.history-row {
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #f4f4f4;
+  border-radius: 6px;
+}
+/* CATEGORY HEADERS */
+.category-header {
+  background: #e8e0f5;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-header:hover {
+  background: #d4c4f0;
+}
+
+.category-header .arrow {
+  font-size: 1.1rem;
+  margin-right: 6px;
+}
+
+.category-items {
+  margin-bottom: 16px;
+}
+
+.category-items.collapsed {
+  display: none;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .category-header {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+}
+/* EDIT BUTTON — GREEN */
+.button.edit-btn {
+  background-color: #28a745;
+  color: white;
+}
+.button.edit-btn:hover {
+  background-color: #218838;
+}
+
+/* DELETE BUTTON — RED */
+.button.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+.button.delete-btn:hover {
+  background-color: #c82333;
+}
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+#adminButtons {
+  margin-bottom: 16px;   /* creates space BELOW Add New Item / Export Audit */
+}
