@@ -1,16 +1,21 @@
 const { TableClient } = require("@azure/data-tables");
-const { verifyToken } = require("../_auth");   // ⭐ NEW: custom JWT auth
 
 module.exports = async function (context, req) {
   try {
-    // ⭐ AUTHENTICATION (replaces SWA built-in auth)
-    const user = verifyToken(req);
+    // ⭐ Extract SWA identity
+    const principal = req.headers["x-ms-client-principal"];
+    let user = null;
+
+    if (principal) {
+      user = JSON.parse(Buffer.from(principal, "base64").toString("ascii"));
+    }
+
     if (!user) {
       context.res = { status: 401, body: "Unauthorized" };
       return;
     }
 
-    const email = user.email;  // from JWT token
+    const email = (user.userDetails || "").toLowerCase();
 
     // ⭐ Read ID from query or body
     const id = req.query.id || (req.body && req.body.id);
@@ -45,7 +50,6 @@ module.exports = async function (context, req) {
     entity.status = "available";
     entity.checkedOutBy = "";
     entity.checkedOutAt = "";
-
     await tableClient.updateEntity(entity, "Replace");
 
     // ⭐ AUDIT LOG
@@ -65,6 +69,9 @@ module.exports = async function (context, req) {
     context.res = { status: 200, body: "Checked in" };
 
   } catch (err) {
-    context.res = { status: 500, body: "Checkin failed: " + err.message };
+    context.res = {
+      status: 500,
+      body: "Checkin failed: " + err.message
+    };
   }
 };

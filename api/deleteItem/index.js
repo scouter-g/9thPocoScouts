@@ -1,17 +1,29 @@
 const { TableClient } = require("@azure/data-tables");
-const { verifyToken } = require("../_auth");   // ⭐ NEW: custom JWT auth
+
+// ⭐ Admin list (same as frontend)
+const adminUsers = [
+  "scouter.greg@outlook.com"
+];
 
 module.exports = async function (context, req) {
   try {
-    // ⭐ AUTHENTICATION (replaces SWA built-in auth)
-    const user = verifyToken(req);
+    // ⭐ Extract SWA identity
+    const principal = req.headers["x-ms-client-principal"];
+    let user = null;
+
+    if (principal) {
+      user = JSON.parse(Buffer.from(principal, "base64").toString("ascii"));
+    }
+
     if (!user) {
       context.res = { status: 401, body: "Unauthorized" };
       return;
     }
 
-    // ⭐ ADMIN CHECK (replaces hardcoded adminUsers array)
-    if (user.role !== "admin") {
+    const email = (user.userDetails || "").toLowerCase();
+
+    // ⭐ Admin check (email-based)
+    if (!adminUsers.includes(email)) {
       context.res = { status: 403, body: "Not authorized" };
       return;
     }
@@ -23,6 +35,7 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // ⭐ Equipment table
     const tableClient = TableClient.fromConnectionString(
       process.env.STORAGE_CONNECTION_STRING,
       "Equipment"
@@ -33,6 +46,9 @@ module.exports = async function (context, req) {
     context.res = { status: 200, body: "Item deleted" };
 
   } catch (err) {
-    context.res = { status: 500, body: "Delete item failed: " + err.message };
+    context.res = {
+      status: 500,
+      body: "Delete item failed: " + err.message
+    };
   }
 };
