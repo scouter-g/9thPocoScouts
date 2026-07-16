@@ -3,12 +3,25 @@ const { verifyToken } = require("../_auth");   // ⭐ NEW: custom JWT auth
 
 module.exports = async function (context, req) {
   try {
-    // ⭐ AUTHENTICATION (replaces SWA built-in auth)
-    const user = verifyToken(req);
+    // ⭐ Extract SWA identity
+    const principal = req.headers["x-ms-client-principal"];
+    let user = null;
+
+    if (principal) {
+      user = JSON.parse(Buffer.from(principal, "base64").toString("ascii"));
+    }
+
     if (!user) {
-      context.res = { status: 401, body: "Unauthorized" };
+      context.res = {
+        status: 401,
+        body: "Unauthorized"
+      };
       return;
     }
+
+    // ⭐ You now have:
+    // user.userDetails  → email
+    // user.userRoles    → ["anonymous", "authenticated"]
 
     // ⭐ Equipment table
     const tableClient = TableClient.fromConnectionString(

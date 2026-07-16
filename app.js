@@ -17,46 +17,27 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 // ===== USER / AUTH =====
 async function initUser() {
-  const token = localStorage.getItem("authToken");
+  const res = await fetch("/.auth/me");
+  const data = await res.json();
+  const user = data.clientPrincipal;
+
   const userDisplay = document.getElementById("userDisplay");
 
-  if (!token) {
+  if (!user) {
     currentUserEmail = "";
     if (userDisplay) userDisplay.textContent = "Not logged in";
     return;
   }
 
-  try {
-    const res = await fetch("/api/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  currentUserEmail = user.userDetails || "";
+  const isAdmin = adminUsers.includes(currentUserEmail.toLowerCase());
 
-    if (!res.ok) {
-      // Token invalid or expired
-      localStorage.removeItem("authToken");
-      currentUserEmail = "";
-      if (userDisplay) userDisplay.textContent = "Not logged in";
-      return;
-    }
-
-    const data = await res.json();
-
-    currentUserEmail = data.email || "";
-    const isAdmin = data.role === "admin";
-
-    if (userDisplay) {
-      userDisplay.textContent =
-        `Logged in as ${currentUserEmail} - ${isAdmin ? "Admin" : "User"}`;
-    }
-
-  } catch (err) {
-    console.error("Auth error:", err);
-    currentUserEmail = "";
-    if (userDisplay) userDisplay.textContent = "Not logged in";
+  if (userDisplay) {
+    userDisplay.textContent =
+      `Logged in as ${currentUserEmail} - ${isAdmin ? "Admin" : "User"}`;
   }
 }
+
 
 
 function setAdminVisibility() {
