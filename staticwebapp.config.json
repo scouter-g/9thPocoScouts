@@ -1,20 +1,17 @@
 {
-  "auth": {
-    "identity": {
-      "azureActiveDirectory": {
-        "registration": {
-          "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
-          "clientIdSettingName": "81a1eb8e-8e5a-48da-b7db-06fe0768d",
-          "clientSecretSettingName": "AAD_CLIENT_SECRET"
-        }
-      },
-      "google": {
-        "registration": {
-          "clientIdSettingName": "GOOGLE_CLIENT_ID",
-          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"
-        }
+  "identity": {
+    "azureActiveDirectory": {
+      "registration": {
+        "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
+        "clientId": "81a1eb8e-8e5a-48da-b7db-06fe0768d",
+        "clientSecretSettingName": "AAD_CLIENT_SECRET"
+      }
+    },
+    "google": {
+      "registration": {
+        "clientIdSettingName": "GOOGLE_CLIENT_ID",
+        "clientSecretSettingName": "GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"
       }
     }
   }
 }
-
