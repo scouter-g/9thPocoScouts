@@ -9,7 +9,7 @@
     },
     "google": {
       "registration": {
-        "clientId": "GOOGLE_CLIENT_ID",
+        "clientId": "941935961227-sni08nj2goobosma7mvv32308rs3qnp9.apps.googleusercontent.com",
         "clientSecretSettingName": "GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"
       }
     }
