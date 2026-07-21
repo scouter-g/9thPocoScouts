@@ -1,12 +1,13 @@
 {
   "identity": {
-    "azureActiveDirectory": {
-      "registration": {
-        "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
-        "clientId": "81a1eb8e-8e5a-48da-b7db-06fe0768d",
-        "clientSecretSettingName": "AAD_CLIENT_SECRET"
-      }
-    },
+    // "azureActiveDirectory": {
+    //   "registration": {
+    //     "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
+    //     "clientId": "81a1eb8e-8e5a-48da-b7db-06fe0768d",
+    //     "clientSecretSettingName": "AAD_CLIENT_SECRET"
+    //   }
+    // },
+
     "google": {
       "registration": {
         "clientId": "941935961227-sni08nj2goobosma7mvv32308rs3qnp9.apps.googleusercontent.com",
