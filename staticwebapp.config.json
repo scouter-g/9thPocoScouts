@@ -1,1 +1,35 @@
-{"identity":{"azureActiveDirectory":{"registration":{"openIdIssuer":"https://login.microsoftonline.com/common/v2.0","clientId":"81a1eb8e-8e5a-48da-b7db-06fe0768d","clientSecretSettingName":"AAD_CLIENT_SECRET"}},"google":{"registration":{"clientId":"GOOGLE_CLIENT_ID","clientSecretSettingName":"GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"}}},"auth":{"rolesSource":"/api/roles","identityProviders":{"azureActiveDirectory":{"registration":{"openIdIssuer":"https://login.microsoftonline.com/b24abfec-caa9-4298-bfdf-2c471f97b2ba","clientIdSettingName":"AZURE_CLIENT_ID","clientSecretSettingName":"AZURE_CLIENT_SECRET_APP_SETTING_NAME"}},"google":{"registration":{"clientIdSettingName":"GOOGLE_CLIENT_ID","clientSecretSettingName":"GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"}}}}}
+{
+  "identity": {
+    "azureActiveDirectory": {
+      "registration": {
+        "openIdIssuer": "https://login.microsoftonline.com/common/v2.0",
+        "clientId": "81a1eb8e-8e5a-48da-b7db-06fe0786dc9d",
+        "clientSecretSettingName": "AAD_CLIENT_SECRET"
+      }
+    },
+    "google": {
+      "registration": {
+        "clientId": "GOOGLE_CLIENT_ID",
+        "clientSecretSettingName": "GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"
+      }
+    }
+  },
+  "auth": {
+    "rolesSource": "/api/roles",
+    "identityProviders": {
+      "azureActiveDirectory": {
+        "registration": {
+          "openIdIssuer": "https://login.microsoftonline.com/b24abfec-caa9-4298-bfdf-2c471f97b2ba",
+          "clientIdSettingName": "AZURE_CLIENT_ID",
+          "clientSecretSettingName": "AZURE_CLIENT_SECRET_APP_SETTING_NAME"
+        }
+      },
+      "google": {
+        "registration": {
+          "clientIdSettingName": "GOOGLE_CLIENT_ID",
+          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET_APP_SETTING_NAME"
+        }
+      }
+    }
+  }
+}
