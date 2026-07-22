@@ -3,21 +3,18 @@ const { TableClient } = require("@azure/data-tables");
 module.exports = async function (context, req) {
   try {
     // ⭐ Extract SWA identity
-    const principal = req.headers["x-ms-client-principal"];
-    let user = null;
-
-    if (principal) {
-      user = JSON.parse(Buffer.from(principal, "base64").toString("ascii"));
-    }
-
-    if (!user) {
+    const principalHeader = req.headers["x-ms-client-principal"];
+    if (!principalHeader) {
       context.res = { status: 401, body: "Unauthorized" };
       return;
     }
 
-    const email = (user.userDetails || "").toLowerCase();
+    const principal = JSON.parse(Buffer.from(principalHeader, "base64").toString("ascii"));
+    const email = (principal.userDetails || "").toLowerCase();
+    const roles = principal.userRoles || [];
+    const isAdmin = roles.includes("admin");
 
-    // ⭐ Read ID from query or body
+    // ⭐ Read ID
     const id = req.query.id || (req.body && req.body.id);
     if (!id) {
       context.res = { status: 400, body: "Missing item id" };
@@ -46,6 +43,17 @@ module.exports = async function (context, req) {
       return;
     }
 
+    const checkedOutBy = (entity.checkedOutBy || "").toLowerCase();
+
+    // ⭐ Authorization logic
+    if (!isAdmin && checkedOutBy !== email) {
+      context.res = {
+        status: 403,
+        body: "You can only check in items you checked out."
+      };
+      return;
+    }
+
     // ⭐ Update item
     entity.status = "available";
     entity.checkedOutBy = "";
@@ -63,6 +71,7 @@ module.exports = async function (context, req) {
       rowKey: new Date().toISOString(),
       action: "check_in",
       user: email,
+      onBehalfOf: checkedOutBy !== email ? checkedOutBy : "",
       timestamp: new Date().toISOString()
     });
 
