@@ -6,8 +6,8 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // SWA-safe base64 decode (no Buffer)
-  const decoded = atob(principalHeader);
+  // SWA-safe base64 decode
+  const decoded = Buffer.from(principalHeader, "base64").toString("utf8");
   const principal = JSON.parse(decoded);
 
   const email = (principal.userDetails || "").toLowerCase();
