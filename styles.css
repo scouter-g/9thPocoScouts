@@ -346,3 +346,9 @@ h2 {
 #adminButtons {
   margin-bottom: 16px;   /* creates space BELOW Add New Item / Export Audit */
 }
+.item-photo {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}

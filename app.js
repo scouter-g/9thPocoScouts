@@ -197,6 +197,13 @@ async function loadInventory() {async function loadInventory() {
 
       card.innerHTML = `
         <div class="row">
+          <img 
+            src="${item.imageUrl || 'default-placeholder.png'}" 
+            class="item-photo" 
+            alt="Item photo"
+          >
+        </div>
+        <div class="row">
           <span class="label">Name:</span>
           <span class="value">${name}</span>
         </div>
@@ -322,12 +329,27 @@ async function saveItem() {
   const category = catSelect ? catSelect.value : "Cooking";
   const status = statusSelect ? statusSelect.value : "available";
 
+  // NEW: handle image upload
+  const fileInput = document.getElementById("itemImageInput");
+  let imageUrl = null;
+
+  // If editing, keep existing image unless replaced
+  if (editingItemId && window.currentEditingItem) {
+    imageUrl = window.currentEditingItem.imageUrl || null;
+  }
+
+  // If a new file was selected, upload it
+  if (fileInput && fileInput.files.length > 0) {
+    imageUrl = await uploadItemImage(editingItemId || name, fileInput.files[0]);
+  }
+
   if (!name) {
     alert("Name is required.");
     return;
   }
 
-  const payload = { name, category, status };
+  // ⭐ FIX: include imageUrl in payload
+  const payload = { name, category, status, imageUrl };
 
   try {
     let url = "/api/addItem";
@@ -378,6 +400,10 @@ async function editItem(id) {
       return;
     }
 
+    // ⭐ Store the item being edited so saveItem() can access imageUrl
+    window.currentEditingItem = item;
+
+    // Open modal with item details
     openEditModal(item);
 
   } catch (err) {
@@ -507,6 +533,32 @@ async function viewHistory(id) {
 function closeHistory() {
   const modal = document.getElementById("historyModal");
   if (modal) modal.style.display = "none";
+}
+// ===== Upload Image =====
+async function uploadItemImage(itemId, file) {
+  const base64 = await fileToBase64(file);
+
+  const res = await fetch(`/api/uploadImage?itemId=${itemId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: base64 })
+  });
+
+  if (!res.ok) {
+    throw new Error("Image upload failed");
+  }
+
+  const data = await res.json();
+  return data.imageUrl;
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 // ===== LOGOUT =====
