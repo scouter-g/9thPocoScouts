@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get"],
-      "route": "roles"
+      "route": "userRoles"
     },
     {
       "type": "http",
