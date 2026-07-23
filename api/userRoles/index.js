@@ -2,16 +2,18 @@ module.exports = async function (context, req) {
   const principalHeader = req.headers["x-ms-client-principal"];
 
   if (!principalHeader) {
-    context.res = { status: 401, body: { roles: [] } };
+    context.res = { status: 200, body: { roles: ["user"] } };
     return;
   }
 
-  const principal = JSON.parse(Buffer.from(principalHeader, "base64").toString("ascii"));
+  // SWA-safe base64 decode (no Buffer)
+  const decoded = atob(principalHeader);
+  const principal = JSON.parse(decoded);
+
   const email = (principal.userDetails || "").toLowerCase();
 
-  let roles = ["user"]; // default role
+  let roles = ["user"];
 
-  // ⭐ Assign admin role
   if (email === "scouter.greg@outlook.com") {
     roles.push("admin");
   }
