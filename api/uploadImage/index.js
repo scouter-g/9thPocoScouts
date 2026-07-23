@@ -37,7 +37,9 @@ module.exports = async function (context, req) {
     );
 
     const containerClient = blobServiceClient.getContainerClient("item-images");
-    const blobClient = containerClient.getBlockBlobClient(`${itemId}.jpg`);
+    const safeName = itemId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const blobClient = containerClient.getBlockBlobClient(`${safeName}.jpg`);
+
 
     await blobClient.uploadData(buffer, {
       blobHTTPHeaders: { blobContentType: "image/jpeg" }
