@@ -544,14 +544,17 @@ function closeHistory() {
 async function uploadItemImage(itemId, file) {
   const base64 = await fileToBase64(file);
 
-  const res = await fetch(`/api/uploadImage?itemId=${itemId}`, {
+  // ⭐ Sanitize AGAIN at the point of building the URL
+  const safeId = itemId.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
+
+  const res = await fetch(`/api/uploadImage?itemId=${encodeURIComponent(safeId)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ image: base64 })
   });
 
   if (!res.ok) {
-    const text = await res.text();   // 👈 get server error
+    const text = await res.text();
     console.error("Upload failed:", text);
     alert("Image upload failed: " + text);
     throw new Error("Image upload failed: " + text);
@@ -560,6 +563,7 @@ async function uploadItemImage(itemId, file) {
   const data = await res.json();
   return data.imageUrl;
 }
+
 
 
 function fileToBase64(file) {
