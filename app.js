@@ -551,12 +551,16 @@ async function uploadItemImage(itemId, file) {
   });
 
   if (!res.ok) {
-    throw new Error("Image upload failed");
+    const text = await res.text();   // 👈 get server error
+    console.error("Upload failed:", text);
+    alert("Image upload failed: " + text);
+    throw new Error("Image upload failed: " + text);
   }
 
   const data = await res.json();
   return data.imageUrl;
 }
+
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
