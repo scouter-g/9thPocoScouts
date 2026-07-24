@@ -329,6 +329,11 @@ async function saveItem() {
   const category = catSelect ? catSelect.value : "Cooking";
   const status = statusSelect ? statusSelect.value : "available";
 
+  if (!name) {
+    alert("Name is required.");
+    return;
+  }
+
   // NEW: handle image upload
   const fileInput = document.getElementById("itemImageInput");
   let imageUrl = null;
@@ -340,15 +345,16 @@ async function saveItem() {
 
   // If a new file was selected, upload it
   if (fileInput && fileInput.files.length > 0) {
-    imageUrl = await uploadItemImage(editingItemId || name, fileInput.files[0]);
+
+    // Generate a safe blob name
+    const safeId = (editingItemId || name)
+      .toLowerCase()
+      .replace(/[^a-z0-9_-]/g, "_");
+
+    imageUrl = await uploadItemImage(safeId, fileInput.files[0]);
   }
 
-  if (!name) {
-    alert("Name is required.");
-    return;
-  }
-
-  // ⭐ FIX: include imageUrl in payload
+  // Include imageUrl in payload
   const payload = { name, category, status, imageUrl };
 
   try {
