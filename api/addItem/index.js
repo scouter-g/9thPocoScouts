@@ -28,8 +28,8 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // ⭐ Extract fields
-    const { id, name, category, status } = req.body || {};
+    // ⭐ FIX 1: Extract imageUrl alongside the other form fields from req.body
+    const { id, name, category, status, imageUrl } = req.body || {};
     if (!id || !name) {
       context.res = { status: 400, body: "Missing id or name" };
       return;
@@ -41,24 +41,26 @@ module.exports = async function (context, req) {
       "Equipment"
     );
 
+    // ⭐ FIX 2: Construct the database entry to include the new imageUrl property
     const entity = {
       partitionKey: "equipment",
       rowKey: id,
       name,
       category: category || null,
       status: status || "available",
-      checkedOutBy: null,
-      checkedOutAt: null
+      imageUrl: imageUrl || null // If no image was uploaded, store null so it falls back to placeholder
     };
 
-    await tableClient.createEntity(entity);
+    // ⭐ FIX 3: Change createEntity to upsertEntity so your form can handle BOTH 
+    // adding brand new equipment AND updating existing items without crashing.
+    await tableClient.upsertEntity(entity, "Replace");
 
-    context.res = { status: 201, body: "Item added" };
+    context.res = { status: 201, body: "Item saved successfully" };
 
   } catch (err) {
     context.res = {
       status: 500,
-      body: "Add item failed: " + err.message
+      body: "Save item failed: " + err.message
     };
   }
 };
