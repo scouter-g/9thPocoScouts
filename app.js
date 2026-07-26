@@ -541,32 +541,44 @@ function closeHistory() {
   if (modal) modal.style.display = "none";
 }
 // ===== Upload Image =====
-async function uploadItemImage(itemId, file) {
-  const base64 = await fileToBase64(file);
-
-  // ⭐ Sanitize AGAIN at the point of building the URL
-  const safeId = itemId.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
-
-  const res = await fetch(`/api/uploadImage?itemId=${encodeURIComponent(safeId)}`, {
-    method: "POST",
-    credentials: "include",   // ⭐ REQUIRED for SWA auth
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`
-    },
-    body: JSON.stringify({ image: base64 })
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    console.error("Upload failed:", text);
-    alert("Image upload failed: " + text);
-    throw new Error("Image upload failed: " + text);
+async function uploadItemImage(itemId, fileInput) {
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+    console.warn("No file selected for upload.");
+    return null;
   }
 
-  const data = await res.json();
-  return data.imageUrl;
+  const file = fileInput.files[0];
+
+  // 1. Convert the browser file into a base64 string
+  const base64String = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Split off the metadata prefix (e.g., "data:image/jpeg;base64,")
+      const base64 = reader.result.split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+
+  // 2. POST the JSON payload matching your backend's expected schema
+  const response = await fetch(`/api/uploadImage?itemId=${encodeURIComponent(itemId)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      image: base64String
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Upload failed with status ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.imageUrl; // Returns the Azure Blob Storage url
 }
 
 
