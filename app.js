@@ -319,34 +319,43 @@ function openEditModal(item) {
 
 // ===== SAVE ITEM (ADD / EDIT) =====
 async function saveItem() {
-  // 1. Grab your HTML file input element by its ID 
-  // (Change "itemPhotoInput" to whatever ID your file input element actually has)
+  // 1. Target your exact input elements (Verify these match your HTML IDs)
   const fileInput = document.getElementById("itemPhotoInput"); 
+  const nameInput = document.getElementById("itemNameInput");
+  const categoryInput = document.getElementById("itemCategoryInput");
+
+  // 2. Validate that a name has actually been entered before submitting
+  const nameValue = nameInput ? nameInput.value.trim() : "";
+  if (!nameValue) {
+    alert("Please enter an item name.");
+    return;
+  }
   
-  // Create a placeholder for the URL
+  // 3. Ensure a valid ID exists (if editingItemId is null, generate a new random ID)
+  const finalId = editingItemId || `stove-${Date.now()}`;
+  
   let imageUrl = "";
 
-  // 2. Only attempt the upload if a user actually picked a file
+  // 4. Upload the image file if one was selected
   if (fileInput && fileInput.files && fileInput.files.length > 0) {
     try {
-      // Pass the actual itemId and the DOM element to your upload function
-      imageUrl = await uploadItemImage(editingItemId || "new-item", fileInput);
+      imageUrl = await uploadItemImage(finalId, fileInput);
     } catch (uploadError) {
       console.error("Image upload failed:", uploadError);
       alert("Failed to upload image. Saving stopped.");
-      return; // Exit out so we don't send a bad payload to addItem
+      return; 
     }
   }
 
-  // 3. Construct your item payload for the backend inventory database
+  // 5. Construct the payload matching what your backend API requires
   const itemPayload = {
-    id: editingItemId,
-    name: document.getElementById("itemNameInput")?.value || "",
-    category: document.getElementById("itemCategoryInput")?.value || "",
-    imageUrl: imageUrl || undefined // Include the new URL if uploaded
+    id: finalId,
+    name: nameValue,
+    category: categoryInput ? categoryInput.value.trim() : "Uncategorized",
+    imageUrl: imageUrl || undefined 
   };
 
-  // 4. Send payload to your inventory API
+  // 6. Send payload to your inventory API
   try {
     const response = await fetch("/api/addItem", {
       method: "POST",
@@ -361,12 +370,15 @@ async function saveItem() {
       throw new Error(errText);
     }
 
-    // Success! Reload your list
+    // Success! Clear any old state and reload your list
+    editingItemId = null; 
     await loadInventory();
+    alert("Item saved successfully!");
   } catch (err) {
     console.error("Save item failed:", err);
   }
 }
+
 // ===== EDIT ITEM (FETCH + OPEN MODAL) =====
 async function editItem(id) {
   const token = localStorage.getItem("authToken");
