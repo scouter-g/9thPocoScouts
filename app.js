@@ -552,6 +552,7 @@ async function uploadItemImage(itemId, file) {
     credentials: "include",   // ⭐ REQUIRED for SWA auth
     headers: {
       "Content-Type": "application/json",
+      "Accept": "application/json",
       Authorization: `Bearer ${localStorage.getItem("authToken")}`
     },
     body: JSON.stringify({ image: base64 })
