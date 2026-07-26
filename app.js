@@ -195,10 +195,12 @@ async function loadInventory() {async function loadInventory() {
         card.classList.add("my-item");
       }
 
+      console.log("Rendering item data structure:", item);
+
       card.innerHTML = `
         <div class="row">
           <img 
-            src="${item.imageUrl || 'default-placeholder.png'}" 
+            src="${item.imageUrl || item.imageurl || 'default-placeholder.png'}" 
             class="item-photo" 
             alt="Item photo"
           >
