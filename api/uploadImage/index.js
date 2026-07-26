@@ -1,8 +1,7 @@
-const { BlobServiceClient } = require("@azure/storage-blob");
+import { BlobServiceClient } from "@azure/storage-blob";
 
-module.exports = async function (context, req) {
+export default async function (context, req) {
   try {
-    // Identity check
     const principalHeader = req.headers["x-ms-client-principal"];
     if (!principalHeader) {
       context.res = { status: 401, body: "Not authenticated" };
@@ -13,13 +12,11 @@ module.exports = async function (context, req) {
     const principal = JSON.parse(decoded);
     const email = (principal.userDetails || "").toLowerCase();
 
-    // Hard-coded admin check
     if (email !== "scouter.greg@outlook.com") {
       context.res = { status: 403, body: "Forbidden: Only Greg can upload images." };
       return;
     }
 
-    // Validate input
     const itemId = req.query.itemId;
     const base64Image = req.body?.image;
 
@@ -28,30 +25,25 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Convert base64 → buffer
+    const safeName = itemId.replace(/[^a-zA-Z0-9_-]/g, "_");
     const buffer = Buffer.from(base64Image, "base64");
 
-    // Blob upload
     const blobServiceClient = BlobServiceClient.fromConnectionString(
       process.env.BLOB_CONNECTION_STRING
     );
 
     const containerClient = blobServiceClient.getContainerClient("item-images");
-    const safeName = itemId.replace(/[^a-zA-Z0-9_-]/g, "_");
     const blobClient = containerClient.getBlockBlobClient(`${safeName}.jpg`);
-
 
     await blobClient.uploadData(buffer, {
       blobHTTPHeaders: { blobContentType: "image/jpeg" }
     });
 
-    const imageUrl = blobClient.url;
-
     context.res = {
       status: 200,
-      body: { imageUrl }
+      body: { imageUrl: blobClient.url }
     };
   } catch (err) {
     context.res = { status: 500, body: err.message };
   }
-};
+}
