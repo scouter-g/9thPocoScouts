@@ -319,10 +319,11 @@ function openEditModal(item) {
 
 // ===== SAVE ITEM (ADD / EDIT) =====
 async function saveItem() {
-  // 1. Target your exact input elements (Verify these match your HTML IDs)
-  const fileInput = document.getElementById("itemPhotoInput"); 
-  const nameInput = document.getElementById("itemNameInput");
-  const categoryInput = document.getElementById("itemCategoryInput");
+  // 1. Target your exact input elements from index.html
+  const fileInput = document.getElementById("itemImageInput"); 
+  const nameInput = document.getElementById("itemName");
+  const categoryInput = document.getElementById("itemCategory");
+  const statusInput = document.getElementById("itemStatus");
 
   // 2. Validate that a name has actually been entered before submitting
   const nameValue = nameInput ? nameInput.value.trim() : "";
@@ -351,7 +352,8 @@ async function saveItem() {
   const itemPayload = {
     id: finalId,
     name: nameValue,
-    category: categoryInput ? categoryInput.value.trim() : "Uncategorized",
+    category: categoryInput ? categoryInput.value : "Cooking",
+    status: statusInput ? statusInput.value : "available",
     imageUrl: imageUrl || undefined 
   };
 
@@ -370,8 +372,9 @@ async function saveItem() {
       throw new Error(errText);
     }
 
-    // Success! Clear any old state and reload your list
+    // Success! Clear state, close the modal, and reload your list
     editingItemId = null; 
+    if (typeof closeModal === "function") closeModal(); // Closes the popup form
     await loadInventory();
     alert("Item saved successfully!");
   } catch (err) {
