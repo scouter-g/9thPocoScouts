@@ -545,32 +545,17 @@ async function uploadItemImage(itemId, fileInput) {
     return null;
   }
 
-  const file = fileInput.files[0]; // Ensure we get the first file object
+  // 1. Grab the raw file binary object directly
+  const file = fileInput.files[0]; 
 
-  // 1. Convert the file cleanly into a base64 string
-  const base64String = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const textResult = reader.result;
-      if (typeof textResult === "string" && textResult.includes(",")) {
-        resolve(textResult.split(",")[1]); // Grab only the raw data after the comma
-      } else {
-        resolve(textResult);
-      }
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file);
-  });
-
-  // 2. POST the JSON payload matching your backend's expected schema
+  // 2. Stream the raw binary file directly as the request body
   const response = await fetch(`/api/uploadImage?itemId=${encodeURIComponent(itemId)}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/octet-stream", // Informs Azure this is raw binary data
+      "X-File-Name": encodeURIComponent(file.name)
     },
-    body: JSON.stringify({
-      image: base64String
-    })
+    body: file // Send the raw binary file directly
   });
 
   if (!response.ok) {
@@ -581,6 +566,7 @@ async function uploadItemImage(itemId, fileInput) {
   const data = await response.json();
   return data.imageUrl; 
 }
+
 
 // ===== LOGOUT =====
 function logout() {
