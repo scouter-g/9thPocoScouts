@@ -35,7 +35,11 @@ module.exports = async function (context, req) {
       category: item.category || null,
       status: item.status || "available",
       checkedOutBy: item.checkedOutBy || null,
-      checkedOutAt: item.checkedOutAt || null
+      checkedOutAt: item.checkedOutAt || null,
+      
+      // ⭐ FIX: Pass the stored imageUrl to your frontend layout!
+      // Checking both standard property formats just in case
+      imageUrl: item.imageUrl || item.imageurl || null 
     }));
 
     context.res = { status: 200, body: { inventory } };
