@@ -549,7 +549,10 @@ async function uploadItemImage(itemId, file) {
 
   const res = await fetch(`/api/uploadImage?itemId=${encodeURIComponent(safeId)}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`
+    },
     body: JSON.stringify({ image: base64 })
   });
 
