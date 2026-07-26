@@ -319,71 +319,54 @@ function openEditModal(item) {
 
 // ===== SAVE ITEM (ADD / EDIT) =====
 async function saveItem() {
-  const token = localStorage.getItem("authToken");
+  // 1. Grab your HTML file input element by its ID 
+  // (Change "itemPhotoInput" to whatever ID your file input element actually has)
+  const fileInput = document.getElementById("itemPhotoInput"); 
+  
+  // Create a placeholder for the URL
+  let imageUrl = "";
 
-  const nameInput = document.getElementById("itemName");
-  const catSelect = document.getElementById("itemCategory");
-  const statusSelect = document.getElementById("itemStatus");
-
-  const name = nameInput ? nameInput.value.trim() : "";
-  const category = catSelect ? catSelect.value : "Cooking";
-  const status = statusSelect ? statusSelect.value : "available";
-
-  if (!name) {
-    alert("Name is required.");
-    return;
-  }
-
-  // NEW: handle image upload
-  const fileInput = document.getElementById("itemImageInput");
-  let imageUrl = null;
-
-  // If editing, keep existing image unless replaced
-  if (editingItemId && window.currentEditingItem) {
-    imageUrl = window.currentEditingItem.imageUrl || null;
-  }
-
-  // If a new file was selected, upload it
-  if (fileInput && fileInput.files.length > 0) {
-
-    // Generate a safe blob name
-    const safeId = (editingItemId || name)
-      .toLowerCase()
-      .replace(/[^a-z0-9_-]/g, "_");
-
-    imageUrl = await uploadItemImage(safeId, fileInput.files[0]);
-  }
-
-  // Include imageUrl in payload
-  const payload = { name, category, status, imageUrl };
-
-  try {
-    let url = "/api/addItem";
-    if (editingItemId) {
-      url = "/api/editItem";
-      payload.id = editingItemId;
+  // 2. Only attempt the upload if a user actually picked a file
+  if (fileInput && fileInput.files && fileInput.files.length > 0) {
+    try {
+      // Pass the actual itemId and the DOM element to your upload function
+      imageUrl = await uploadItemImage(editingItemId || "new-item", fileInput);
+    } catch (uploadError) {
+      console.error("Image upload failed:", uploadError);
+      alert("Failed to upload image. Saving stopped.");
+      return; // Exit out so we don't send a bad payload to addItem
     }
+  }
 
-    const response = await fetch(url, {
+  // 3. Construct your item payload for the backend inventory database
+  const itemPayload = {
+    id: editingItemId,
+    name: document.getElementById("itemNameInput")?.value || "",
+    category: document.getElementById("itemCategoryInput")?.value || "",
+    imageUrl: imageUrl || undefined // Include the new URL if uploaded
+  };
+
+  // 4. Send payload to your inventory API
+  try {
+    const response = await fetch("/api/addItem", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(itemPayload)
     });
 
-    if (!response.ok) throw new Error("Failed to save item");
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(errText);
+    }
 
-    closeModal();
+    // Success! Reload your list
     await loadInventory();
   } catch (err) {
-    console.error(err);
-    alert("Error saving item.");
+    console.error("Save item failed:", err);
   }
 }
-
-
 // ===== EDIT ITEM (FETCH + OPEN MODAL) =====
 async function editItem(id) {
   const token = localStorage.getItem("authToken");
