@@ -2,6 +2,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
 
 export default async function (context, req) {
   try {
+    // 1. Authentication Check
     const principalHeader = req.headers["x-ms-client-principal"];
     if (!principalHeader) {
       context.res = { status: 401, body: "Not authenticated" };
@@ -19,51 +20,64 @@ export default async function (context, req) {
 
     const itemId = req.query.itemId;
     
-    // Fix 1: Ensure req.body is completely parsed regardless of how Azure sends it
-    let base64Image = "";
+    // 2. Parse request body safely whether it's sent as an object or a raw string
+    let rawBase64Image = "";
     if (req.body && typeof req.body === "object") {
-      base64Image = req.body.image;
+      rawBase64Image = req.body.image;
     } else if (typeof req.body === "string") {
       try {
         const parsedBody = JSON.parse(req.body);
-        base64Image = parsedBody.image;
+        rawBase64Image = parsedBody.image;
       } catch (e) {
-        // Fallback if the body itself is just the raw string
-        base64Image = req.body;
+        rawBase64Image = req.body;
       }
     }
 
-    if (!itemId || !base64Image) {
-      context.res = { 
-        status: 400, 
-        body: `Missing parameters. itemId: ${!!itemId}, imageString: ${!!base64Image}` 
-      };
+    if (!itemId || !rawBase64Image) {
+      context.res = { status: 400, body: "Missing itemId or image data" };
       return;
     }
 
+    // FIX 1: Clean the Base64 string! Strip off any browser-added "data:image/jpeg;base64," prefixes
+    const base64DataOnly = rawBase64Image.includes(",") 
+      ? rawBase64Image.split(",")[1] 
+      : rawBase64Image;
+
+    // Convert cleanly to binary buffer
+    const buffer = Buffer.from(base64DataOnly, "base64");
     const safeName = itemId.replace(/[^a-zA-Z0-9_-]/g, "_");
-    
-    // Fix 2: Convert base64 data to buffer safely
-    const buffer = Buffer.from(base64Image, "base64");
+
+    // 3. Connect to Azure Storage
+    if (!process.env.BLOB_CONNECTION_STRING) {
+      context.res = { status: 500, body: "Server configuration error: Missing connection string." };
+      return;
+    }
 
     const blobServiceClient = BlobServiceClient.fromConnectionString(
       process.env.BLOB_CONNECTION_STRING
     );
 
     const containerClient = blobServiceClient.getContainerClient("item-images");
+    
+    // FIX 2: Safeguard against missing storage containers by forcing auto-creation
+    await containerClient.createIfNotExists({ access: 'blob' }); 
+
     const blobClient = containerClient.getBlockBlobClient(`${safeName}.jpg`);
 
+    // 4. Upload raw binary data
     await blobClient.uploadData(buffer, {
       blobHTTPHeaders: { blobContentType: "image/jpeg" }
     });
 
-    // Azure Functions v3/v4 expect response objects containing stringified JSON bodies 
+    // FIX 3: Deliver clean, stringified JSON responses with explicit header types
     context.res = {
       status: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ imageUrl: blobClient.url })
     };
+
   } catch (err) {
-    context.res = { status: 500, body: `Server Error: ${err.message}` };
+    // Return precise backend message strings back to the frontend console window
+    context.res = { status: 500, body: `Backend Error: ${err.message}` };
   }
 }
