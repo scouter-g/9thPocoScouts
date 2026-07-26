@@ -545,15 +545,18 @@ async function uploadItemImage(itemId, fileInput) {
     return null;
   }
 
-  const file = fileInput.files[0]; // Extract the single file object
+  const file = fileInput.files[0]; // Ensure we get the first file object
 
-  // 1. Convert the browser file into a clean base64 string
+  // 1. Convert the file cleanly into a base64 string
   const base64String = await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const parts = reader.result.split(",");
-      // Grab only the base64 data string after the comma
-      resolve(parts[1] || parts[0]); 
+      const textResult = reader.result;
+      if (typeof textResult === "string" && textResult.includes(",")) {
+        resolve(textResult.split(",")[1]); // Grab only the raw data after the comma
+      } else {
+        resolve(textResult);
+      }
     };
     reader.onerror = (error) => reject(error);
     reader.readAsDataURL(file);
@@ -576,9 +579,8 @@ async function uploadItemImage(itemId, fileInput) {
   }
 
   const data = await response.json();
-  return data.imageUrl; // Returns the Azure Blob Storage url
+  return data.imageUrl; 
 }
-
 
 // ===== LOGOUT =====
 function logout() {
