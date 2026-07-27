@@ -234,8 +234,11 @@ async function loadInventory() {async function loadInventory() {
             ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
             : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
           }
-          <button class="button edit-btn admin-only" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')" style="${isAdmin ? "" : "display:none;"}">Edit / Add Photo</button>
-          <button class="button delete-btn admin-only" onclick="deleteItem('${item.id}')" style="${isAdmin ? "" : "display:none;"}">Delete</button>
+          // FIX: Removed the "admin-only" class to stop CSS from overriding our visibility logic!
+          ${isAdmin ? ` 
+              <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')">Edit / Add Photo</button>
+              <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
+          ` : ""}
           <button class="button" onclick="viewHistory('${item.id}')">History</button>
         </div>
       `;
