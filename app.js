@@ -234,7 +234,7 @@ async function loadInventory() {async function loadInventory() {
             ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
             : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
           }
-          <button class="button edit-btn admin-only" onclick="editItem('${item.id}')" style="${isAdmin ? "" : "display:none;"}">Edit</button>
+          <button class="button edit-btn admin-only" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')" style="${isAdmin ? "" : "display:none;"}">Edit / Add Photo</button>
           <button class="button delete-btn admin-only" onclick="deleteItem('${item.id}')" style="${isAdmin ? "" : "display:none;"}">Delete</button>
           <button class="button" onclick="viewHistory('${item.id}')">History</button>
         </div>
@@ -272,6 +272,50 @@ async function loadInventory() {async function loadInventory() {
   if (!container.hasChildNodes()) {
     container.innerHTML = "<p>No items match your filters.</p>";
   }
+}
+// ===== OPEN MODAL FOR EDITING EXISTING ITEMS =====
+function openEditModal(id, encodedName, encodedCategory, status) {
+  // 1. Set global state so saveItem targets the existing item ID instead of generating a new one
+  editingItemId = id; 
+
+  // 2. Change modal text title to reflect editing mode
+  const modalTitle = document.getElementById("modalTitle");
+  if (modalTitle) modalTitle.textContent = "Edit Item Details";
+
+  // 3. Pre-fill your HTML form fields with current database information
+  const nameInput = document.getElementById("itemName");
+  const categorySelect = document.getElementById("itemCategory");
+  const statusSelect = document.getElementById("itemStatus");
+  const fileInput = document.getElementById("itemImageInput");
+
+  if (nameInput) nameInput.value = decodeURIComponent(encodedName);
+  if (categorySelect) categorySelect.value = decodeURIComponent(encodedCategory);
+  if (statusSelect) statusSelect.value = status;
+  
+  // Clear any previous file selection from the upload box
+  if (fileInput) fileInput.value = ""; 
+
+  // 4. Reveal the modal layout popup box
+  const modal = document.getElementById("itemModal");
+  if (modal) modal.style.display = "block";
+}
+
+// ===== UPDATE YOUR EXISTING OPENADDMODAL TO RESET STATE =====
+function openAddModal() {
+  // Clear any previous editing target ID to indicate a brand new item entry
+  editingItemId = null; 
+
+  const modalTitle = document.getElementById("modalTitle");
+  if (modalTitle) modalTitle.textContent = "Add New Item";
+
+  // Reset all modal fields to blank/defaults
+  if (document.getElementById("itemName")) document.getElementById("itemName").value = "";
+  if (document.getElementById("itemCategory")) document.getElementById("itemCategory").value = "Cooking";
+  if (document.getElementById("itemStatus")) document.getElementById("itemStatus").value = "available";
+  if (document.getElementById("itemImageInput")) document.getElementById("itemImageInput").value = "";
+
+  const modal = document.getElementById("itemModal");
+  if (modal) modal.style.display = "block";
 }
 
 // ===== FILTER: MY ITEMS =====
