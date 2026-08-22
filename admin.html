@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Approved Users</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Approved Users</h1>
+    <p id="adminUserInfo"></p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Current Approved Users</h2>
+      <table id="approvedUsersTable">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Display Name</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Add / Update User</h2>
+      <label>Email:
+        <input type="email" id="newUserEmail">
+      </label>
+      <label>Display Name:
+        <input type="text" id="newUserDisplayName">
+      </label>
+      <label>Role:
+        <select id="newUserRole">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </label>
+      <button id="addUserBtn">Add / Update User</button>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>

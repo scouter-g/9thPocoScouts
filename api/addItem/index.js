@@ -22,13 +22,30 @@ module.exports = async function (context, req) {
 
     const email = (user.userDetails || "").toLowerCase();
 
+    // ⭐ NEW: AllowedUsers table check
+    const allowedClient = TableClient.fromConnectionString(
+      process.env.STORAGE_CONNECTION_STRING,
+      "AllowedUsers"
+    );
+
+    let allowedEntity = null;
+    try {
+      allowedEntity = await allowedClient.getEntity("user", email);
+    } catch (err) {
+      if (err.statusCode === 404) {
+        context.res = { status: 403, body: "Not authorized (not in AllowedUsers)" };
+        return;
+      }
+      throw err; // unexpected error
+    }
+
     // ⭐ Admin check (email-based)
     if (!adminUsers.includes(email)) {
-      context.res = { status: 403, body: "Not authorized" };
+      context.res = { status: 403, body: "Not authorized (admin only)" };
       return;
     }
 
-    // ⭐ FIX 1: Extract imageUrl alongside the other form fields from req.body
+    // ⭐ Extract fields
     const { id, name, category, status, imageUrl } = req.body || {};
     if (!id || !name) {
       context.res = { status: 400, body: "Missing id or name" };
@@ -41,18 +58,15 @@ module.exports = async function (context, req) {
       "Equipment"
     );
 
-    // ⭐ FIX 2: Construct the database entry to include the new imageUrl property
     const entity = {
       partitionKey: "equipment",
       rowKey: id,
       name,
       category: category || null,
       status: status || "available",
-      imageUrl: imageUrl || null // If no image was uploaded, store null so it falls back to placeholder
+      imageUrl: imageUrl || null
     };
 
-    // ⭐ FIX 3: Change createEntity to upsertEntity so your form can handle BOTH 
-    // adding brand new equipment AND updating existing items without crashing.
     await tableClient.upsertEntity(entity, "Replace");
 
     context.res = { status: 201, body: "Item saved successfully" };
