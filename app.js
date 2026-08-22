@@ -11,9 +11,14 @@ const adminUsers = [
 // ===== INIT =====
 window.addEventListener("DOMContentLoaded", async () => {
   await initUser();
+
+  const ok = await checkAuthorization();
+  if (!ok) return;
+
   setAdminVisibility();
   await loadInventory();
 });
+
 
 // ===== USER / AUTH =====
 async function initUser() {
