@@ -268,11 +268,6 @@ async function loadInventory() {
   }
 }
 
-
-  // (rest of your function stays EXACTLY the same)
-  // ...
-}
-
   // Track which categories were open before reload
   const openCategories = new Set(
     Array.from(document.querySelectorAll(".category-items"))
