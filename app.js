@@ -13,11 +13,15 @@ window.addEventListener("DOMContentLoaded", async () => {
   await initUser();
 
   const ok = await checkAuthorization();
-  if (!ok) return;
+  if (!ok) return;   // ⭐ stops everything AND shows Not Authorized
+
+  // ⭐ Only show the app if authorized
+  document.getElementById("appContainer").style.display = "block";
 
   setAdminVisibility();
   await loadInventory();
 });
+
 
 
 // ===== USER / AUTH =====

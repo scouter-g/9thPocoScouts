@@ -10,44 +10,48 @@
 <body>
 
   <!-- HEADER -->
-<header class="header">
-  <div class="header-left">
-    <h1>9th PoCo Scouts Equipment Inventory</h1>
-    <div id="userDisplay" class="user-info"></div>
-  </div>
-
-  <div class="header-right">
-    <button class="button" onclick="logout()">Logout</button>
-  </div>
-</header>
-
-
-  <main>
-
-    <!-- ADMIN BUTTONS -->
-    <div id="adminButtons" class="admin-only">
-      <button class="button" onclick="openAddModal()">Add New Item</button>
-      <button class="button" onclick="exportAudit()">Export Audit CSV</button>
+  <header class="header">
+    <div class="header-left">
+      <h1>9th PoCo Scouts Equipment Inventory</h1>
+      <div id="userDisplay" class="user-info"></div>
     </div>
 
-    <!-- FILTER BUTTON -->
-    <div class="filter-row">
-      <button id="filterToggle" class="button" onclick="toggleMyItems()">My Checked Out Items</button>
+    <div class="header-right">
+      <button class="button" onclick="logout()">Logout</button>
     </div>
+  </header>
 
-    <!-- SEARCH BAR -->
-    <input
-      id="searchBox"
-      class="search-box"
-      type="text"
-      placeholder="Search items..."
-      oninput="loadInventory()"
-    />
+  <!-- ⭐ HIDE ALL UI UNTIL AUTHORIZED ⭐ -->
+  <div id="appContainer" style="display:none;">
 
-    <!-- CATEGORY CONTAINER (JS POPULATES THIS) -->
-    <div id="categoryContainer"></div>
+    <main>
 
-  </main>
+      <!-- ADMIN BUTTONS -->
+      <div id="adminButtons" class="admin-only">
+        <button class="button" onclick="openAddModal()">Add New Item</button>
+        <button class="button" onclick="exportAudit()">Export Audit CSV</button>
+      </div>
+
+      <!-- FILTER BUTTON -->
+      <div class="filter-row">
+        <button id="filterToggle" class="button" onclick="toggleMyItems()">My Checked Out Items</button>
+      </div>
+
+      <!-- SEARCH BAR -->
+      <input
+        id="searchBox"
+        class="search-box"
+        type="text"
+        placeholder="Search items..."
+        oninput="loadInventory()"
+      />
+
+      <!-- CATEGORY CONTAINER (JS POPULATES THIS) -->
+      <div id="categoryContainer"></div>
+
+    </main>
+
+  </div> <!-- END appContainer -->
 
   <!-- ADD / EDIT MODAL -->
   <div id="itemModal" class="modal">
@@ -88,6 +92,7 @@
         <option value="available">Available</option>
         <option value="checked_out">Checked Out</option>
       </select>
+
       <label>Item Photo</label>
       <input id="itemImageInput" type="file" accept="image/*">
 
