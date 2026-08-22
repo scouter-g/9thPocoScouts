@@ -74,7 +74,12 @@ function setAdminVisibility() {
 }
 
 // ===== INVENTORY LOADING WITH CATEGORIES =====
-async function loadInventory() {async function loadInventory() {
+async function loadInventory() {
+
+  // ⭐ Block unauthorized users even if UI triggers loadInventory()
+  const ok = await checkAuthorization();
+  if (!ok) return;
+
   const token = localStorage.getItem("authToken");
 
   // Track which categories were open before reload
@@ -110,6 +115,159 @@ async function loadInventory() {async function loadInventory() {
     container.innerHTML = "<p>Error loading inventory.</p>";
     return;
   }
+
+  // Count items checked out by current user for badge
+  const myCount = items.filter(
+    i => i.checkedOutBy && userEmail && i.checkedOutBy.toLowerCase() === userEmail.toLowerCase()
+  ).length;
+
+  const filterBtn = document.getElementById("filterToggle");
+  if (filterBtn) {
+    filterBtn.textContent = filterMyItems
+      ? `Showing My Checked Out Items (${myCount})`
+      : `My Checked Out Items (${myCount})`;
+  }
+
+  // Group items by category
+  const categories = {};
+  items.forEach(item => {
+    const cat = item.category || "Uncategorized";
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+
+  // Sort categories alphabetically
+  const categoryNames = Object.keys(categories).sort((a, b) => a.localeCompare(b));
+
+  categoryNames.forEach(categoryName => {
+    const itemsInCategory = categories[categoryName];
+
+    // CATEGORY HEADER
+    const header = document.createElement("div");
+    header.className = "category-header";
+    header.dataset.category = categoryName;
+
+    const count = itemsInCategory.length;
+    header.innerHTML = `
+      <span><span class="arrow">▶</span> ${categoryName} (${count})</span>
+    `;
+
+    // CATEGORY ITEMS CONTAINER
+    const section = document.createElement("div");
+    section.className = "category-items collapsed";
+    section.id = `cat-${categoryName}`;
+
+    // Render cards inside category
+    itemsInCategory.forEach(item => {
+      const name = item.name || "";
+      const category = item.category || "";
+      const status = item.status || "available";
+      const checkedBy = item.checkedOutBy || "";
+      const checkedDate = item.checkedOutAt
+        ? item.checkedOutAt.split("T")[0]
+        : "";
+
+      const matchesSearch =
+        !searchTerm ||
+        name.toLowerCase().includes(searchTerm) ||
+        category.toLowerCase().includes(searchTerm);
+
+      const matchesMine =
+        !showMine ||
+        (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase());
+
+      if (!matchesSearch || !matchesMine) return;
+
+      const card = document.createElement("div");
+      card.className = "inventory-card";
+
+      const isCheckedOut = status === "checked_out";
+
+      // Highlight items checked out by current user
+      if (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase()) {
+        card.classList.add("my-item");
+      }
+
+      card.innerHTML = `
+        <div class="row">
+          <img 
+            src="${item.imageUrl || item.imageurl || 'default-placeholder.png'}" 
+            class="item-photo" 
+            alt="Item photo"
+          >
+        </div>
+        <div class="row">
+          <span class="label">Name:</span>
+          <span class="value">${name}</span>
+        </div>
+        <div class="row">
+          <span class="label">Category:</span>
+          <span class="value">${category}</span>
+        </div>
+        <div class="row">
+          <span class="label">Status:</span>
+          <span class="value">${status}</span>
+        </div>
+
+        ${checkedBy ? `
+          <div class="row">
+            <span class="label">Checked Out By:</span>
+            <span class="value">${checkedBy}</span>
+          </div>
+          <div class="row">
+            <span class="label">Checked Out On:</span>
+            <span class="value">${checkedDate}</span>
+          </div>
+        ` : ""}
+
+        <div class="row action-row">
+          ${!isCheckedOut
+            ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
+            : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
+          }
+          ${isAdmin ? ` 
+              <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')">Edit / Add Photo</button>
+              <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
+          ` : ""}
+          <button class="button" onclick="viewHistory('${item.id}')">History</button>
+        </div>
+      `;
+
+      section.appendChild(card);
+    });
+
+    // Only add category if it has visible items after filters
+    if (section.children.length > 0) {
+      container.appendChild(header);
+      container.appendChild(section);
+
+      // CLICK HANDLER FOR COLLAPSE/EXPAND
+      header.addEventListener("click", () => {
+        const arrow = header.querySelector(".arrow");
+        const isCollapsed = section.classList.contains("collapsed");
+
+        if (isCollapsed) {
+          section.classList.remove("collapsed");
+          arrow.textContent = "▼";
+        } else {
+          section.classList.add("collapsed");
+          arrow.textContent = "▶";
+        }
+      });
+
+      // ⭐ RESTORE OPEN/CLOSED STATE AFTER RELOAD ⭐
+      if (openCategories.has(categoryName)) {
+        section.classList.remove("collapsed");
+        header.querySelector(".arrow").textContent = "▼";  
+      }
+    }  
+  });
+
+  if (!container.hasChildNodes()) {
+    container.innerHTML = "<p>No items match your filters.</p>";
+  }
+}
+
 
   // (rest of your function stays EXACTLY the same)
   // ...
