@@ -4,9 +4,8 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "methods": [ "delete" ],
       "name": "req",
-      "route": "deleteItem"
+      "methods": [ "post" ]
     },
     {
       "type": "http",
