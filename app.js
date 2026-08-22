@@ -46,6 +46,8 @@ async function checkAuthorization() {
   const res = await fetch("/api/authorize", { credentials: "include" });
   const auth = await res.json();
 
+  console.log("AUTH CHECK:", auth);   // ⭐ Add this line here
+
   if (!auth.allowed) {
     document.body.innerHTML = `
       <h2 style="text-align:center;margin-top:50px;">
@@ -450,7 +452,6 @@ async function loadInventory() {
   if (!container.hasChildNodes()) {
     container.innerHTML = "<p>No items match your filters.</p>";
   }
-}
 // ===== OPEN MODAL FOR EDITING EXISTING ITEMS =====
 function openEditModal(id, encodedName, encodedCategory, status) {
   // 1. Set global state so saveItem targets the existing item ID instead of generating a new one

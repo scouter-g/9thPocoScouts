@@ -10,13 +10,17 @@
 <body>
 
   <!-- HEADER -->
-  <header>
+<header class="header">
+  <div class="header-left">
     <h1>9th PoCo Scouts Equipment Inventory</h1>
-    <div class="user-info">
-      <span id="userDisplay">Logged in as ...</span>
-      <button id="logout-btn" onclick="logout()">Logout</button>
-    </div>
-  </header>
+    <div id="userDisplay" class="user-info"></div>
+  </div>
+
+  <div class="header-right">
+    <button class="button" onclick="logout()">Logout</button>
+  </div>
+</header>
+
 
   <main>
 
