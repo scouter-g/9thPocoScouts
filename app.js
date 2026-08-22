@@ -37,6 +37,24 @@ async function initUser() {
       `Logged in as ${currentUserEmail} - ${isAdmin ? "Admin" : "User"}`;
   }
 }
+async function checkAuthorization() {
+  const res = await fetch("/api/authorize", { credentials: "include" });
+  const auth = await res.json();
+
+  if (!auth.allowed) {
+    document.body.innerHTML = `
+      <h2 style="text-align:center;margin-top:50px;">
+        You are not authorized to use this system.
+      </h2>
+    `;
+    return false;
+  }
+
+  window.currentUserEmail = auth.email;
+  window.currentUserIsAdmin = auth.isAdmin;
+
+  return true;
+}
 
 
 
