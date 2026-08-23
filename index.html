@@ -123,8 +123,13 @@
       <div id="allowedUsersList">Loading...</div>
 
       <h3>Add New User</h3>
-      <input id="newUserEmail" type="email" placeholder="email@example.com">
-      <button class="button" onclick="addAllowedUser()">Add User</button>
+
+      <div class="add-user-row">
+        <input id="newUserEmail" type="email" placeholder="email@example.com">
+        <input id="newUserDisplayName" type="text" placeholder="Display Name (optional)">
+        <button class="button" onclick="addAllowedUser()">Add User</button>
+      </div>
+
 
       <div class="modal-actions">
         <button class="button" onclick="closeUserAdmin()">Close</button>

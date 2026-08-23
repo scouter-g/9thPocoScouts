@@ -8,6 +8,7 @@ module.exports = async function (context, req) {
     );
 
     const users = [];
+
     for await (const entity of client.listEntities()) {
       users.push({
         email: entity.rowKey,
@@ -27,4 +28,3 @@ module.exports = async function (context, req) {
     };
   }
 };
-
