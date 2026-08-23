@@ -54,10 +54,56 @@ async function checkAuthorization() {
 
   if (!auth.allowed) {
     document.body.innerHTML = `
-      <h2 style="text-align:center;margin-top:50px;">
-        You are not authorized to use this system.  If you believe this to be an error, email scouter.greg@outlook.com
-      </h2>
-    `;
+      <div style="
+        max-width: 500px;
+        margin: 80px auto;
+        padding: 30px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background: #fafafa;
+        font-family: Arial, sans-serif;
+        text-align: center;
+      ">
+        <h2 style="margin-bottom: 20px;">Access Required</h2>
+
+        <p style="margin-bottom: 20px;">
+          You are not authorized to use this system.<br>
+          If you believe this is an error, you may request access below.
+        </p>
+
+        <input
+          id="requestAccessEmail"
+          type="email"
+          placeholder="your.email@example.com"
+          style="
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          "
+        />
+
+        <button
+          onclick="requestAccess()"
+          style="
+            padding: 10px 20px;
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+        >
+          Request Access
+        </button>
+
+        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+          Your request will be sent to the administrator.
+        </p>
+      </div>
+  `;
+
     return false;
   }
 
@@ -550,5 +596,29 @@ async function removeAllowedUser(email) {
   } catch (err) {
     console.error(err);
     alert("Failed to remove user.");
+  }
+}
+async function requestAccess() {
+  const email = document.getElementById("requestAccessEmail").value.trim();
+
+  if (!email) {
+    alert("Please enter your email.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/requestAccess", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    alert("Your access request has been sent. A leader will review it shortly.");
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to send request.");
   }
 }
