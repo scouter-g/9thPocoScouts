@@ -471,8 +471,16 @@ async function loadAllowedUsers() {
 
   try {
     const res = await fetch("/api/listAllowedUsers");
-    const users = await res.json();
+    const data = await res.json();
 
+    // If backend returned an error object, show it
+    if (!Array.isArray(data)) {
+      console.error("listAllowedUsers error:", data);
+      list.innerHTML = "<p>Error loading users.</p>";
+      return;
+    }
+
+    const users = data;
     list.innerHTML = "";
 
     users.forEach(u => {
@@ -494,6 +502,7 @@ async function loadAllowedUsers() {
     list.innerHTML = "<p>Error loading users.</p>";
   }
 }
+
 
 
 
