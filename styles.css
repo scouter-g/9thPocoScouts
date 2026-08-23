@@ -398,4 +398,15 @@ h2 {
   gap: 10px;
   margin: 10px 0 20px 0;
 }
+#userAdminModal .modal-content {
+  width: 500px;        /* wider modal */
+  max-width: 90%;      /* still responsive */
+}
+#userAdminModal .modal-content {
+  width: 600px;
+  max-width: 95%;
+}
+.user-row span {
+  white-space: nowrap;   /* prevent wrapping */
+}
 
