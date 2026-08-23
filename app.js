@@ -269,42 +269,6 @@ async function loadInventory() {
     }  
   });
 
-  if (!container.hasChildNodes()) {
-    container.innerHTML = "<p>No items match your filters.</p>";
-  }
-}
-
-  // Track which categories were open before reload
-  const openCategories = new Set(
-    Array.from(document.querySelectorAll(".category-items"))
-      .filter(sec => !sec.classList.contains("collapsed"))
-      .map(sec => sec.id.replace("cat-", ""))
-  );
-
-  const container = document.getElementById("categoryContainer");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  const searchInput = document.getElementById("searchBox");
-  const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
-  const showMine = filterMyItems;
-  const userEmail = currentUserEmail || "";
-  const isAdmin = userEmail && adminUsers.includes(userEmail.toLowerCase());
-
-  let items = [];
-  try {
-    const response = await fetch("/api/inventory");
-    if (!response.ok) throw new Error("Failed to load items");
-
-    const data = await response.json();
-    items = data.inventory || [];
-  } catch (err) {
-    console.error(err);
-    container.innerHTML = "<p>Error loading inventory.</p>";
-    return;
-  }
-
   // Count items checked out by current user for badge
   const myCount = items.filter(
     i => i.checkedOutBy && userEmail && i.checkedOutBy.toLowerCase() === userEmail.toLowerCase()
