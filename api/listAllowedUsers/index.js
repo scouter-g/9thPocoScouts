@@ -2,23 +2,27 @@ const { TableClient } = require("@azure/data-tables");
 
 module.exports = async function (context, req) {
   try {
+    const { email, displayName } = req.body;
+
+    if (!email) {
+      context.res = { status: 400, body: "Missing email" };
+      return;
+    }
+
     const client = TableClient.fromConnectionString(
       process.env.STORAGE_CONNECTION_STRING,
       "AllowedUsers"
     );
 
-    const users = [];
-
-    for await (const entity of client.listEntities()) {
-      users.push({
-        email: entity.rowKey,
-        displayName: entity.displayName || ""
-      });
-    }
+    await client.createEntity({
+      partitionKey: "user",
+      rowKey: email.toLowerCase(),
+      displayName: displayName || ""
+    });
 
     context.res = {
       status: 200,
-      body: users
+      body: { success: true }
     };
 
   } catch (err) {
