@@ -478,10 +478,14 @@ async function loadAllowedUsers() {
     users.forEach(u => {
       const row = document.createElement("div");
       row.className = "user-row";
+
+      const name = u.displayName ? ` (${u.displayName})` : "";
+
       row.innerHTML = `
-        ${u.email}
+        <span>${u.email}${name}</span>
         <button class="button delete-btn" onclick="removeAllowedUser('${u.email}')">Delete</button>
       `;
+
       list.appendChild(row);
     });
 
@@ -491,20 +495,26 @@ async function loadAllowedUsers() {
   }
 }
 
+
+
 async function addAllowedUser() {
   const email = document.getElementById("newUserEmail").value.trim().toLowerCase();
+  const displayName = document.getElementById("newUserDisplayName").value.trim();
+
   if (!email) return alert("Enter an email.");
 
   try {
     const res = await fetch("/api/addAllowedUser", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, displayName })
     });
 
     if (!res.ok) throw new Error(await res.text());
 
     document.getElementById("newUserEmail").value = "";
+    document.getElementById("newUserDisplayName").value = "";
+
     loadAllowedUsers();
 
   } catch (err) {
@@ -512,6 +522,7 @@ async function addAllowedUser() {
     alert("Failed to add user.");
   }
 }
+
 
 async function removeAllowedUser(email) {
   if (!confirm(`Remove ${email}?`)) return;

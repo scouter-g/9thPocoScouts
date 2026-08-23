@@ -382,4 +382,20 @@ h2 {
 #logoutBtn:hover {
   background: #e6e6e6;
 }
+.user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.user-row button {
+  margin-left: 20px;
+}
+.add-user-row {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 20px 0;
+}
 
