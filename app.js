@@ -15,16 +15,13 @@ window.addEventListener("DOMContentLoaded", async () => {
   await initUser();
 
   const ok = await checkAuthorization();
-  if (!ok) return;   // ⭐ stops everything AND shows Not Authorized
+  if (!ok) return;
 
-  // ⭐ Only show the app if authorized
   document.getElementById("appContainer").style.display = "block";
 
   setAdminVisibility();
   await loadInventory();
 });
-
-
 
 // ===== USER / AUTH =====
 async function initUser() {
@@ -48,11 +45,12 @@ async function initUser() {
       `Logged in as ${currentUserEmail} - ${isAdmin ? "Admin" : "User"}`;
   }
 }
+
 async function checkAuthorization() {
   const res = await fetch("/api/authorize", { credentials: "include" });
   const auth = await res.json();
 
-  console.log("AUTH CHECK:", auth);   // ⭐ Add this line here
+  console.log("AUTH CHECK:", auth);
 
   if (!auth.allowed) {
     document.body.innerHTML = `
@@ -69,29 +67,44 @@ async function checkAuthorization() {
   return true;
 }
 
-
-
 function setAdminVisibility() {
   const isAdmin = currentUserEmail && adminUsers.includes(currentUserEmail.toLowerCase());
-
-  // Admin-only header buttons
   const adminButtons = document.getElementById("adminButtons");
-  if (adminButtons) {
-    adminButtons.style.display = isAdmin ? "block" : "none";
-  }
+  if (adminButtons) adminButtons.style.display = isAdmin ? "block" : "none";
 }
 
-// ===== INVENTORY LOADING WITH CATEGORIES =====
+// ===== INVENTORY LOADING =====
 async function loadInventory() {
-
-  // ⭐ Block unauthorized users even if UI triggers loadInventory()
   const ok = await checkAuthorization();
   if (!ok) return;
 
   const token = localStorage.getItem("authToken");
 
+  const container = document.getElementById("categoryContainer");
+  if (!container) return;
+  container.innerHTML = "";
 
-  // Count items checked out by current user for badge
+  const searchInput = document.getElementById("searchBox");
+  const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+  const showMine = filterMyItems;
+  const userEmail = currentUserEmail || "";
+  const isAdmin = adminUsers.includes(userEmail.toLowerCase());
+
+  let items = [];
+  try {
+    const response = await fetch("/api/inventory", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!response.ok) throw new Error("Failed to load items");
+
+    const data = await response.json();
+    items = data.inventory || [];
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = "<p>Error loading inventory.</p>";
+    return;
+  }
+
   const myCount = items.filter(
     i => i.checkedOutBy && userEmail && i.checkedOutBy.toLowerCase() === userEmail.toLowerCase()
   ).length;
@@ -103,7 +116,6 @@ async function loadInventory() {
       : `My Checked Out Items (${myCount})`;
   }
 
-  // Group items by category
   const categories = {};
   items.forEach(item => {
     const cat = item.category || "Uncategorized";
@@ -111,36 +123,26 @@ async function loadInventory() {
     categories[cat].push(item);
   });
 
-  // Sort categories alphabetically
   const categoryNames = Object.keys(categories).sort((a, b) => a.localeCompare(b));
 
   categoryNames.forEach(categoryName => {
     const itemsInCategory = categories[categoryName];
 
-    // CATEGORY HEADER
     const header = document.createElement("div");
     header.className = "category-header";
     header.dataset.category = categoryName;
+    header.innerHTML = `<span><span class="arrow">▶</span> ${categoryName} (${itemsInCategory.length})</span>`;
 
-    const count = itemsInCategory.length;
-    header.innerHTML = `
-      <span><span class="arrow">▶</span> ${categoryName} (${count})</span>
-    `;
-
-    // CATEGORY ITEMS CONTAINER
     const section = document.createElement("div");
     section.className = "category-items collapsed";
     section.id = `cat-${categoryName}`;
 
-    // Render cards inside category
     itemsInCategory.forEach(item => {
       const name = item.name || "";
       const category = item.category || "";
       const status = item.status || "available";
       const checkedBy = item.checkedOutBy || "";
-      const checkedDate = item.checkedOutAt
-        ? item.checkedOutAt.split("T")[0]
-        : "";
+      const checkedDate = item.checkedOutAt ? item.checkedOutAt.split("T")[0] : "";
 
       const matchesSearch =
         !searchTerm ||
@@ -158,41 +160,21 @@ async function loadInventory() {
 
       const isCheckedOut = status === "checked_out";
 
-      // Highlight items checked out by current user
       if (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase()) {
         card.classList.add("my-item");
       }
 
       card.innerHTML = `
         <div class="row">
-          <img 
-            src="${item.imageUrl || item.imageurl || 'default-placeholder.png'}" 
-            class="item-photo" 
-            alt="Item photo"
-          >
+          <img src="${item.imageUrl || 'default-placeholder.png'}" class="item-photo" alt="Item photo">
         </div>
-        <div class="row">
-          <span class="label">Name:</span>
-          <span class="value">${name}</span>
-        </div>
-        <div class="row">
-          <span class="label">Category:</span>
-          <span class="value">${category}</span>
-        </div>
-        <div class="row">
-          <span class="label">Status:</span>
-          <span class="value">${status}</span>
-        </div>
+        <div class="row"><span class="label">Name:</span><span class="value">${name}</span></div>
+        <div class="row"><span class="label">Category:</span><span class="value">${category}</span></div>
+        <div class="row"><span class="label">Status:</span><span class="value">${status}</span></div>
 
         ${checkedBy ? `
-          <div class="row">
-            <span class="label">Checked Out By:</span>
-            <span class="value">${checkedBy}</span>
-          </div>
-          <div class="row">
-            <span class="label">Checked Out On:</span>
-            <span class="value">${checkedDate}</span>
-          </div>
+          <div class="row"><span class="label">Checked Out By:</span><span class="value">${checkedBy}</span></div>
+          <div class="row"><span class="label">Checked Out On:</span><span class="value">${checkedDate}</span></div>
         ` : ""}
 
         <div class="row action-row">
@@ -200,9 +182,9 @@ async function loadInventory() {
             ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
             : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
           }
-          ${isAdmin ? ` 
-              <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')">Edit / Add Photo</button>
-              <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
+          ${isAdmin ? `
+            <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')">Edit / Add Photo</button>
+            <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
           ` : ""}
           <button class="button" onclick="viewHistory('${item.id}')">History</button>
         </div>
@@ -211,12 +193,10 @@ async function loadInventory() {
       section.appendChild(card);
     });
 
-    // Only add category if it has visible items after filters
     if (section.children.length > 0) {
       container.appendChild(header);
       container.appendChild(section);
 
-      // CLICK HANDLER FOR COLLAPSE/EXPAND
       header.addEventListener("click", () => {
         const arrow = header.querySelector(".arrow");
         const isCollapsed = section.classList.contains("collapsed");
@@ -229,355 +209,106 @@ async function loadInventory() {
           arrow.textContent = "▶";
         }
       });
-
-      // ⭐ RESTORE OPEN/CLOSED STATE AFTER RELOAD ⭐
-      if (openCategories.has(categoryName)) {
-        section.classList.remove("collapsed");
-        header.querySelector(".arrow").textContent = "▼";  
-      }
-    }  
-  });
-
-  // Count items checked out by current user for badge
-  const myCount = items.filter(
-    i => i.checkedOutBy && userEmail && i.checkedOutBy.toLowerCase() === userEmail.toLowerCase()
-  ).length;
-
-  const filterBtn = document.getElementById("filterToggle");
-  if (filterBtn) {
-    filterBtn.textContent = filterMyItems
-      ? `Showing My Checked Out Items (${myCount})`
-      : `My Checked Out Items (${myCount})`;
-  }
-
-  // Group items by category
-  const categories = {};
-  items.forEach(item => {
-    const cat = item.category || "Uncategorized";
-    if (!categories[cat]) categories[cat] = [];
-    categories[cat].push(item);
-  });
-
-  // Sort categories alphabetically
-  const categoryNames = Object.keys(categories).sort((a, b) => a.localeCompare(b));
-
-  categoryNames.forEach(categoryName => {
-    const itemsInCategory = categories[categoryName];
-
-    // CATEGORY HEADER
-    const header = document.createElement("div");
-    header.className = "category-header";
-    header.dataset.category = categoryName;
-
-    const count = itemsInCategory.length;
-    header.innerHTML = `
-      <span><span class="arrow">▶</span> ${categoryName} (${count})</span>
-    `;
-
-    // CATEGORY ITEMS CONTAINER
-    const section = document.createElement("div");
-    section.className = "category-items collapsed";
-    section.id = `cat-${categoryName}`;
-
-    // Render cards inside category
-    itemsInCategory.forEach(item => {
-      const name = item.name || "";
-      const category = item.category || "";
-      const status = item.status || "available";
-      const checkedBy = item.checkedOutBy || "";
-      const checkedDate = item.checkedOutAt
-        ? item.checkedOutAt.split("T")[0]
-        : "";
-
-      const matchesSearch =
-        !searchTerm ||
-        name.toLowerCase().includes(searchTerm) ||
-        category.toLowerCase().includes(searchTerm);
-
-      const matchesMine =
-        !showMine ||
-        (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase());
-
-      if (!matchesSearch || !matchesMine) return;
-
-      const card = document.createElement("div");
-      card.className = "inventory-card";
-
-      const isCheckedOut = status === "checked_out";
-
-      // Highlight items checked out by current user
-      if (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase()) {
-        card.classList.add("my-item");
-      }
-
-      console.log("Rendering item data structure:", item);
-
-      card.innerHTML = `
-        <div class="row">
-          <img 
-            src="${item.imageUrl || item.imageurl || 'default-placeholder.png'}" 
-            class="item-photo" 
-            alt="Item photo"
-          >
-        </div>
-        <div class="row">
-          <span class="label">Name:</span>
-          <span class="value">${name}</span>
-        </div>
-        <div class="row">
-          <span class="label">Category:</span>
-          <span class="value">${category}</span>
-        </div>
-        <div class="row">
-          <span class="label">Status:</span>
-          <span class="value">${status}</span>
-        </div>
-
-        ${checkedBy ? `
-          <div class="row">
-            <span class="label">Checked Out By:</span>
-            <span class="value">${checkedBy}</span>
-          </div>
-          <div class="row">
-            <span class="label">Checked Out On:</span>
-            <span class="value">${checkedDate}</span>
-          </div>
-        ` : ""}
-
-        <div class="row action-row">
-          ${!isCheckedOut
-            ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
-            : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
-          }
-          ${isAdmin ? ` 
-              <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')">Edit / Add Photo</button>
-              <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
-          ` : ""}
-          <button class="button" onclick="viewHistory('${item.id}')">History</button>
-        </div>
-      `;
-
-      section.appendChild(card);
-    });
-
-    // Only add category if it has visible items after filters
-    if (section.children.length > 0) {
-      container.appendChild(header);
-      container.appendChild(section);
-
-      // CLICK HANDLER FOR COLLAPSE/EXPAND
-      header.addEventListener("click", () => {
-        const arrow = header.querySelector(".arrow");
-        const isCollapsed = section.classList.contains("collapsed");
-
-        if (isCollapsed) {
-          section.classList.remove("collapsed");
-          arrow.textContent = "▼";
-        } else {
-          section.classList.add("collapsed");
-          arrow.textContent = "▶";
-        }
-      });
-      // ⭐ RESTORE OPEN/CLOSED STATE AFTER RELOAD ⭐
-      if (openCategories.has(categoryName)) {
-        section.classList.remove("collapsed");
-        header.querySelector(".arrow").textContent = "▼";  
-      }
-    }  
+    }
   });
 
   if (!container.hasChildNodes()) {
     container.innerHTML = "<p>No items match your filters.</p>";
   }
-// ===== OPEN MODAL FOR EDITING EXISTING ITEMS =====
+}
+
+// ===== MODALS =====
 function openEditModal(id, encodedName, encodedCategory, status) {
-  // 1. Set global state so saveItem targets the existing item ID instead of generating a new one
-  editingItemId = id; 
+  editingItemId = id;
 
-  // 2. Change modal text title to reflect editing mode
   const modalTitle = document.getElementById("modalTitle");
-  if (modalTitle) modalTitle.textContent = "Edit Item Details";
-
-  // 3. Pre-fill your HTML form fields with current database information
   const nameInput = document.getElementById("itemName");
   const categorySelect = document.getElementById("itemCategory");
   const statusSelect = document.getElementById("itemStatus");
   const fileInput = document.getElementById("itemImageInput");
 
-  if (nameInput) nameInput.value = decodeURIComponent(encodedName);
-  if (categorySelect) categorySelect.value = decodeURIComponent(encodedCategory);
-  if (statusSelect) statusSelect.value = status;
-  
-  // Clear any previous file selection from the upload box
-  if (fileInput) fileInput.value = ""; 
+  modalTitle.textContent = "Edit Item Details";
+  nameInput.value = decodeURIComponent(encodedName);
+  categorySelect.value = decodeURIComponent(encodedCategory);
+  statusSelect.value = status;
+  fileInput.value = "";
 
-  // 4. Reveal the modal layout popup box
-  const modal = document.getElementById("itemModal");
-  if (modal) modal.style.display = "block";
+  document.getElementById("itemModal").style.display = "block";
 }
 
-// ===== UPDATE YOUR EXISTING OPENADDMODAL TO RESET STATE =====
 function openAddModal() {
-  // Clear any previous editing target ID to indicate a brand new item entry
-  editingItemId = null; 
+  editingItemId = null;
 
-  const modalTitle = document.getElementById("modalTitle");
-  if (modalTitle) modalTitle.textContent = "Add New Item";
+  document.getElementById("modalTitle").textContent = "Add New Item";
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemCategory").value = "Cooking";
+  document.getElementById("itemStatus").value = "available";
+  document.getElementById("itemImageInput").value = "";
 
-  // Reset all modal fields to blank/defaults
-  if (document.getElementById("itemName")) document.getElementById("itemName").value = "";
-  if (document.getElementById("itemCategory")) document.getElementById("itemCategory").value = "Cooking";
-  if (document.getElementById("itemStatus")) document.getElementById("itemStatus").value = "available";
-  if (document.getElementById("itemImageInput")) document.getElementById("itemImageInput").value = "";
-
-  const modal = document.getElementById("itemModal");
-  if (modal) modal.style.display = "block";
+  document.getElementById("itemModal").style.display = "block";
 }
 
-// ===== FILTER: MY ITEMS =====
+function closeModal() {
+  document.getElementById("itemModal").style.display = "none";
+  editingItemId = null;
+}
+
+// ===== FILTER =====
 function toggleMyItems() {
   filterMyItems = !filterMyItems;
   loadInventory();
 }
 
-// ===== MODAL HELPERS =====
-function openAddModal() {
-  editingItemId = null;
-  const modal = document.getElementById("itemModal");
-  const title = document.getElementById("modalTitle");
-  const nameInput = document.getElementById("itemName");
-  const catSelect = document.getElementById("itemCategory");
-  const statusSelect = document.getElementById("itemStatus");
-
-  if (title) title.textContent = "Add Item";
-  if (nameInput) nameInput.value = "";
-  if (catSelect) catSelect.value = "Cooking";
-  if (statusSelect) statusSelect.value = "available";
-
-  if (modal) modal.style.display = "block";
-}
-
-function closeModal() {
-  const modal = document.getElementById("itemModal");
-  if (modal) modal.style.display = "none";
-  editingItemId = null;
-}
-
-function openEditModal(item) {
-  editingItemId = item.id;
-  const modal = document.getElementById("itemModal");
-  const title = document.getElementById("modalTitle");
-  const nameInput = document.getElementById("itemName");
-  const catSelect = document.getElementById("itemCategory");
-  const statusSelect = document.getElementById("itemStatus");
-
-  if (title) title.textContent = "Edit Item";
-  if (nameInput) nameInput.value = item.name || "";
-  if (catSelect) catSelect.value = item.category || "Cooking";
-  if (statusSelect) statusSelect.value = item.status || "available";
-
-  if (modal) modal.style.display = "block";
-}
-
-// ===== SAVE ITEM (ADD / EDIT) =====
+// ===== SAVE ITEM =====
 async function saveItem() {
-  // 1. Target your exact input elements from index.html
-  const fileInput = document.getElementById("itemImageInput"); 
+  const fileInput = document.getElementById("itemImageInput");
   const nameInput = document.getElementById("itemName");
   const categoryInput = document.getElementById("itemCategory");
   const statusInput = document.getElementById("itemStatus");
 
-  // 2. Validate that a name has actually been entered before submitting
-  const nameValue = nameInput ? nameInput.value.trim() : "";
+  const nameValue = nameInput.value.trim();
   if (!nameValue) {
     alert("Please enter an item name.");
     return;
   }
-  
-  // 3. Ensure a valid ID exists (if editingItemId is null, generate a new random ID)
-  const finalId = editingItemId || `stove-${Date.now()}`;
-  
+
+  const finalId = editingItemId || `item-${Date.now()}`;
   let imageUrl = "";
 
-  // 4. Upload the image file if one was selected
-  if (fileInput && fileInput.files && fileInput.files.length > 0) {
+  if (fileInput.files.length > 0) {
     try {
       imageUrl = await uploadItemImage(finalId, fileInput);
-    } catch (uploadError) {
-      console.error("Image upload failed:", uploadError);
-      alert("Failed to upload image. Saving stopped.");
-      return; 
+    } catch (err) {
+      console.error("Image upload failed:", err);
+      alert("Failed to upload image.");
+      return;
     }
   }
 
-  // 5. Construct the payload matching what your backend API requires
   const itemPayload = {
     id: finalId,
     name: nameValue,
-    category: categoryInput ? categoryInput.value : "Cooking",
-    status: statusInput ? statusInput.value : "available",
-    imageUrl: imageUrl || undefined 
+    category: categoryInput.value,
+    status: statusInput.value,
+    imageUrl: imageUrl || undefined
   };
 
-  // 6. Send payload to your inventory API
   try {
     const response = await fetch("/api/addItem", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(itemPayload)
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(errText);
-    }
+    if (!response.ok) throw new Error(await response.text());
 
-    // Success! Clear state, close the modal, and reload your list
-    editingItemId = null; 
-    if (typeof closeModal === "function") closeModal(); // Closes the popup form
+    closeModal();
     await loadInventory();
     alert("Item saved successfully!");
   } catch (err) {
     console.error("Save item failed:", err);
   }
 }
-
-// ===== EDIT ITEM (FETCH + OPEN MODAL) =====
-async function editItem(id) {
-  const token = localStorage.getItem("authToken");
-
-  try {
-    const response = await fetch("/api/inventory", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) throw new Error("Failed to load items");
-
-    const data = await response.json();
-    const items = data.inventory || [];
-    const item = items.find(i => i.id === id);
-
-    if (!item) {
-      alert("Item not found.");
-      return;
-    }
-
-    // ⭐ Store the item being edited so saveItem() can access imageUrl
-    window.currentEditingItem = item;
-
-    // Open modal with item details
-    openEditModal(item);
-
-  } catch (err) {
-    console.error(err);
-    alert("Error loading item for edit.");
-  }
-}
-
 
 // ===== DELETE ITEM =====
 async function deleteItem(id) {
@@ -603,7 +334,6 @@ async function deleteItem(id) {
     alert("Error deleting item.");
   }
 }
-
 
 // ===== CHECK OUT / CHECK IN =====
 async function checkOutItem(id) {
@@ -633,7 +363,6 @@ async function checkOutItem(id) {
   }
 }
 
-
 async function checkInItem(id) {
   const token = localStorage.getItem("authToken");
 
@@ -647,7 +376,7 @@ async function checkInItem(id) {
       body: JSON.stringify({ id })
     });
 
-    if (!response.ok) throw new Error("Failed to check in item");
+    if (!response.ok) throw new Error("Failed to check in item.");
 
     await loadInventory();
   } catch (err) {
@@ -656,19 +385,17 @@ async function checkInItem(id) {
   }
 }
 
-
 // ===== HISTORY =====
 async function viewHistory(id) {
   const token = localStorage.getItem("authToken");
 
   const modal = document.getElementById("historyModal");
   const list = document.getElementById("historyList");
-  if (!modal || !list) return;
 
   list.innerHTML = "Loading...";
 
   try {
-    const response = await fetch("/api/audit?id=" + encodeURIComponent(id), {
+    const response = await fetch(`/api/audit?id=${encodeURIComponent(id)}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -676,10 +403,11 @@ async function viewHistory(id) {
 
     const history = await response.json();
 
+    list.innerHTML = "";
+
     if (!history || history.length === 0) {
       list.innerHTML = "<p>No history for this item.</p>";
     } else {
-      list.innerHTML = "";
       history.forEach(entry => {
         const row = document.createElement("div");
         row.className = "history-row";
@@ -695,40 +423,30 @@ async function viewHistory(id) {
   }
 }
 
-
 function closeHistory() {
-  const modal = document.getElementById("historyModal");
-  if (modal) modal.style.display = "none";
+  document.getElementById("historyModal").style.display = "none";
 }
+
 // ===== Upload Image =====
 async function uploadItemImage(itemId, fileInput) {
-  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-    console.warn("No file selected for upload.");
-    return null;
-  }
+  const file = fileInput.files[0];
 
-  // 1. Grab the raw file binary object directly
-  const file = fileInput.files[0]; 
-
-  // 2. Stream the raw binary file directly as the request body
   const response = await fetch(`/api/uploadImage?itemId=${encodeURIComponent(itemId)}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/octet-stream", // Informs Azure this is raw binary data
+      "Content-Type": "application/octet-stream",
       "X-File-Name": encodeURIComponent(file.name)
     },
-    body: file // Send the raw binary file directly
+    body: file
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Upload failed with status ${response.status}: ${errorText}`);
+    throw new Error(await response.text());
   }
 
   const data = await response.json();
-  return data.imageUrl; 
+  return data.imageUrl;
 }
-
 
 // ===== LOGOUT =====
 function logout() {
