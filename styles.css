@@ -354,4 +354,32 @@ h2 {
   object-fit: cover;
   display: block;     /* keeps layout tidy */
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #5a2ca0;
+  color: white;
+  padding: 10px 20px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+#logoutBtn {
+  background: #ffffff;
+  color: #5a2ca0;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#logoutBtn:hover {
+  background: #e6e6e6;
+}
 
