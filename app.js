@@ -54,55 +54,82 @@ async function checkAuthorization() {
 
   if (!auth.allowed) {
     document.body.innerHTML = `
-      <div style="
-        max-width: 500px;
-        margin: 80px auto;
-        padding: 30px;
+  <div style="
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #fafafa;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  ">
+    <h2 style="margin-bottom: 20px;">Access Required</h2>
+
+    <p style="margin-bottom: 20px;">
+      You are not authorized to use this system.<br>
+      If you believe this is an error, you may request access below.
+    </p>
+
+    <input
+      id="requestAccessFirst"
+      type="text"
+      placeholder="First Name"
+      style="
+        width: 90%;
+        padding: 10px;
+        margin-bottom: 10px;
         border: 1px solid #ccc;
-        border-radius: 10px;
-        background: #fafafa;
-        font-family: Arial, sans-serif;
-        text-align: center;
-      ">
-        <h2 style="margin-bottom: 20px;">Access Required</h2>
+        border-radius: 5px;
+      "
+    />
 
-        <p style="margin-bottom: 20px;">
-          You are not authorized to use this system.<br>
-          If you believe this is an error, you may request access below.
-        </p>
+    <input
+      id="requestAccessLast"
+      type="text"
+      placeholder="Last Name"
+      style="
+        width: 90%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      "
+    />
 
-        <input
-          id="requestAccessEmail"
-          type="email"
-          placeholder="your.email@example.com"
-          style="
-            width: 90%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-          "
-        />
+    <input
+      id="requestAccessEmail"
+      type="email"
+      placeholder="your.email@example.com"
+      style="
+        width: 90%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      "
+    />
 
-        <button
-          onclick="requestAccess()"
-          style="
-            padding: 10px 20px;
-            background: #4a6cf7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-          "
-        >
-          Request Access
-        </button>
+    <button
+      onclick="requestAccess()"
+      style="
+        padding: 10px 20px;
+        background: #4a6cf7;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      "
+    >
+      Request Access
+    </button>
 
-        <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
-          Your request will be sent to the administrator.
-        </p>
-      </div>
-  `;
+    <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+      Your request will be sent to the administrator.
+    </p>
+  </div>
+`;
+
 
     return false;
   }
@@ -599,10 +626,12 @@ async function removeAllowedUser(email) {
   }
 }
 async function requestAccess() {
+  const first = document.getElementById("requestAccessFirst").value.trim();
+  const last = document.getElementById("requestAccessLast").value.trim();
   const email = document.getElementById("requestAccessEmail").value.trim();
 
-  if (!email) {
-    alert("Please enter your email.");
+  if (!first || !last || !email) {
+    alert("Please enter first name, last name, and email.");
     return;
   }
 
@@ -610,7 +639,7 @@ async function requestAccess() {
     const res = await fetch("/api/requestAccess", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ first, last, email })
     });
 
     if (!res.ok) throw new Error(await res.text());
@@ -622,3 +651,4 @@ async function requestAccess() {
     alert("Failed to send request.");
   }
 }
+

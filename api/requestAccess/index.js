@@ -1,23 +1,37 @@
-const { TableClient } = require("@azure/data-tables");
+const nodemailer = require("nodemailer");
 
 module.exports = async function (context, req) {
   try {
-    const { email } = req.body;
+    const { first, last, email } = req.body;
 
-    if (!email) {
-      context.res = { status: 400, body: "Missing email" };
+    if (!first || !last || !email) {
+      context.res = { status: 400, body: "Missing fields" };
       return;
     }
 
-    const client = TableClient.fromConnectionString(
-      process.env.STORAGE_CONNECTION_STRING,
-      "AccessRequests"
-    );
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
 
-    await client.createEntity({
-      partitionKey: "request",
-      rowKey: email.toLowerCase(),
-      timestamp: new Date().toISOString()
+    await transporter.sendMail({
+      from: `"Scout Inventory" <${process.env.SMTP_USER}>`,
+      to: "scouter.greg@outlook.com",
+      subject: "Access Request Received",
+      text: `
+A new access request has been submitted.
+
+First Name: ${first}
+Last Name: ${last}
+Email: ${email}
+
+Please review and add this user if appropriate.
+      `
     });
 
     context.res = {
