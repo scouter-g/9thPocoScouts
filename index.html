@@ -30,6 +30,7 @@
       <div id="adminButtons" class="admin-only">
         <button class="button" onclick="openAddModal()">Add New Item</button>
         <button class="button" onclick="exportAudit()">Export Audit CSV</button>
+        <button class="button" onclick="openUserAdmin()">Manage Users</button>
       </div>
 
       <!-- FILTER BUTTON -->
@@ -110,6 +111,23 @@
       <div id="historyList"></div>
       <div class="modal-actions">
         <button class="button" onclick="closeHistory()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER ADMIN MODAL -->
+  <div id="userAdminModal" class="modal">
+    <div class="modal-content">
+      <h2>User Management</h2>
+
+      <div id="allowedUsersList">Loading...</div>
+
+      <h3>Add New User</h3>
+      <input id="newUserEmail" type="email" placeholder="email@example.com">
+      <button class="button" onclick="addAllowedUser()">Add User</button>
+
+      <div class="modal-actions">
+        <button class="button" onclick="closeUserAdmin()">Close</button>
       </div>
     </div>
   </div>

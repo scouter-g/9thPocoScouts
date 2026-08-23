@@ -453,3 +453,82 @@ function logout() {
   localStorage.removeItem("authToken");
   window.location.href = "/login.html";
 }
+// ===== USER ADMIN PANEL =====
+function openUserAdmin() {
+  const modal = document.getElementById("userAdminModal");
+  modal.style.display = "block";
+  loadAllowedUsers();
+}
+
+function closeUserAdmin() {
+  const modal = document.getElementById("userAdminModal");
+  modal.style.display = "none";
+}
+
+async function loadAllowedUsers() {
+  const list = document.getElementById("allowedUsersList");
+  list.innerHTML = "Loading...";
+
+  try {
+    const res = await fetch("/api/listAllowedUsers");
+    const users = await res.json();
+
+    list.innerHTML = "";
+
+    users.forEach(u => {
+      const row = document.createElement("div");
+      row.className = "user-row";
+      row.innerHTML = `
+        ${u.email}
+        <button class="button delete-btn" onclick="removeAllowedUser('${u.email}')">Delete</button>
+      `;
+      list.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = "<p>Error loading users.</p>";
+  }
+}
+
+async function addAllowedUser() {
+  const email = document.getElementById("newUserEmail").value.trim().toLowerCase();
+  if (!email) return alert("Enter an email.");
+
+  try {
+    const res = await fetch("/api/addAllowedUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    document.getElementById("newUserEmail").value = "";
+    loadAllowedUsers();
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to add user.");
+  }
+}
+
+async function removeAllowedUser(email) {
+  if (!confirm(`Remove ${email}?`)) return;
+
+  try {
+    const res = await fetch("/api/removeAllowedUser", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    loadAllowedUsers();
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to remove user.");
+  }
+}
