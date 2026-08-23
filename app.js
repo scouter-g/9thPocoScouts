@@ -1,3 +1,5 @@
+console.log("APP.JS LOADED");
+
 // ===== GLOBAL STATE =====
 let currentUserEmail = "";
 let filterMyItems = false;
