@@ -55,7 +55,7 @@ async function checkAuthorization() {
   if (!auth.allowed) {
     document.body.innerHTML = `
       <h2 style="text-align:center;margin-top:50px;">
-        You are not authorized to use this system.
+        You are not authorized to use this system.  If you believe this to be an error, email scouter.greg@outlook.com
       </h2>
     `;
     return false;
