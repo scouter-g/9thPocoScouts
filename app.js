@@ -33,12 +33,14 @@ async function initUser() {
 
   const userDisplay = document.getElementById("userDisplay");
 
+  // --- NOT LOGGED IN ---
   if (!user) {
-    currentUserEmail = "";
-    if (userDisplay) userDisplay.textContent = "Not logged in";
+    // Redirect to login page instead of showing Access Required
+    window.location.href = "/login.html";
     return;
   }
 
+  // --- LOGGED IN ---
   currentUserEmail = user.userDetails || "";
   const isAdmin = adminUsers.includes(currentUserEmail.toLowerCase());
 
@@ -47,6 +49,7 @@ async function initUser() {
       `Logged in as ${currentUserEmail} - ${isAdmin ? "Admin" : "User"}`;
   }
 }
+
 
 async function checkAuthorization() {
   const res = await fetch("/api/authorize", { credentials: "include" });
