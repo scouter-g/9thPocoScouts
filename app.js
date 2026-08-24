@@ -7,7 +7,9 @@ let editingItemId = null;
 
 // Admin list
 const adminUsers = [
-  "scouter.greg@outlook.com"
+  "scouter.greg@outlook.com",
+  "phil.9thpoco@gmail.com",
+  "agv9522@gmail.com"
 ];
 
 // ===== INIT =====
