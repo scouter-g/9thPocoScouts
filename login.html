@@ -11,21 +11,43 @@
       text-align: center;
     }
 
+    .container {
+      max-width: 450px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      width: 180px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
     h2 {
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       color: #333;
+      font-size: 22px;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
     }
 
     .login-btn {
-      display: block;
-      width: 280px;
-      margin: 12px auto;
-      padding: 14px;
-      font-size: 18px;
+      padding: 12px 18px;
+      font-size: 16px;
       border-radius: 6px;
       border: none;
       cursor: pointer;
       color: white;
+      min-width: 140px;
     }
 
     .ms-btn {
@@ -36,6 +58,10 @@
       background-color: #DB4437; /* Google red */
     }
 
+    .yahoo-btn {
+      background-color: #720E9E; /* Yahoo purple */
+    }
+
     .login-btn:hover {
       opacity: 0.9;
     }
@@ -43,15 +69,28 @@
 </head>
 <body>
 
-  <h2>Sign in to 9th PoCo Scouts Inventory</h2>
+  <div class="container">
 
-  <button class="login-btn ms-btn" onclick="login('aad')">
-    Sign in with Microsoft
-  </button>
+    <!-- Group Crest -->
+    <img src="9thPocoCrestNB.png" class="logo" alt="9th PoCo Scouts Crest">
 
-  <button class="login-btn google-btn" onclick="login('google')">
-    Sign in with Google
-  </button>
+    <h2>Sign in to 9th PoCo Scouts Group Equipment Inventory</h2>
+
+    <div class="button-row">
+      <button class="login-btn ms-btn" onclick="login('aad')">
+        Microsoft
+      </button>
+
+      <button class="login-btn google-btn" onclick="login('google')">
+        Google
+      </button>
+
+      <button class="login-btn yahoo-btn" onclick="alert('Yahoo login not yet implemented');">
+        Yahoo
+      </button>
+    </div>
+
+  </div>
 
   <script>
     function login(provider) {
