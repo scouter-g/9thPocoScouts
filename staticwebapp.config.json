@@ -17,24 +17,6 @@
         "login": {
           "scopes": ["email", "profile"]
         }
-      },
-
-      "customOpenIdConnectProviders": {
-        "yahoo": {
-          "registration": {
-            "clientIdSettingName": "YAHOO_CLIENT_ID",
-            "clientSecretSettingName": "YAHOO_CLIENT_SECRET",
-            "openIdConnectConfiguration": {
-              "issuer": "https://api.login.yahoo.com",
-              "authorizationEndpoint": "https://api.login.yahoo.com/oauth2/request_auth",
-              "tokenEndpoint": "https://api.login.yahoo.com/oauth2/get_token",
-              "userInfoEndpoint": "https://api.login.yahoo.com/openid/v1/userinfo"
-            }
-          },
-          "login": {
-            "nameClaimType": "email"
-          }
-        }
       }
     }
   },
