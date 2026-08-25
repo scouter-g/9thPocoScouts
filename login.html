@@ -27,14 +27,6 @@
       border-radius: 8px;
     }
 
-    @media (max-width: 800px) {
-      .logo {
-        width: 800px;
-      }
-    }
-
-
-
     h2 {
       margin-bottom: 25px;
       color: #333;
@@ -60,27 +52,61 @@
     }
 
     .ms-btn {
-      background-color: #0078D4; /* Microsoft blue */
+      background-color: #0078D4;
     }
 
     .google-btn {
-      background-color: #DB4437; /* Google red */
-    }
-
-    .yahoo-btn {
-      background-color: #720E9E; /* Yahoo purple */
+      background-color: #DB4437;
     }
 
     .login-btn:hover {
       opacity: 0.9;
     }
+
+    /* Mobile improvements */
+    @media (max-width: 600px) {
+
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        max-width: 100%;
+        width: 100%;
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .logo {
+        width: 90%;
+        max-width: 350px;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+
+      .button-row {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .login-btn {
+        width: 100%;
+        font-size: 20px;
+        padding: 16px;
+        min-width: unset;
+      }
+    }
+
   </style>
 </head>
 <body>
 
   <div class="container">
 
-    <!-- Group Crest -->
     <img src="9thPocoCrestNB.png" class="logo" alt="9th PoCo Scouts Crest">
 
     <h2>Sign in to 9th PoCo Scouts Group Equipment Inventory</h2>
@@ -93,7 +119,6 @@
       <button class="login-btn google-btn" onclick="login('google')">
         Google
       </button>
-
     </div>
 
   </div>
