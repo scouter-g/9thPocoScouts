@@ -88,7 +88,6 @@ h2 {
   margin-right: 0;
 }
 
-
 /* BUTTONS */
 .button {
   background: #5a2ca0;
@@ -141,23 +140,19 @@ h2 {
     margin-bottom: 12px;
   }
 
-  /* Reduce row spacing */
   .inventory-card .row {
     margin-bottom: 4px;
   }
 
-  /* Labels smaller + left aligned */
   .inventory-card .label {
     font-size: 0.85rem;
     margin-right: 6px;
   }
 
-  /* Values slightly smaller */
   .inventory-card .value {
     font-size: 0.9rem;
   }
 
-  /* Checked Out By indentation */
   .inventory-card .checked-out-by .value {
     padding-left: 10px;
   }
@@ -173,43 +168,48 @@ h2 {
     margin-bottom: 12px;
   }
 
-  /* --- MOBILE BUTTON FIXES --- */
-
-  /* Admin buttons stay on first row */
-  .admin-only {
-    margin-bottom: 8px;
+  /* --- ADMIN BUTTON FIX (Option B) --- */
+  #adminButtons {
+    display: flex;
+    flex-wrap: nowrap;   /* keep all 3 buttons on one row */
+    gap: 8px;
   }
 
-  /* Force filter button onto its own row with spacing */
+  #adminButtons .button {
+    flex: 1;             /* equal widths */
+    padding: 8px 10px;   /* slightly smaller */
+    font-size: 0.9rem;
+    min-width: unset;
+  }
+
+  /* Force filter button onto its own row */
   #filterToggle {
-    display: inline-block;   /* shrink to fit text */
-    width: auto;             /* no forced width */
-    margin-top: 12px;        /* spacing from admin buttons */
+    display: inline-block;
+    width: auto;
+    margin-top: 12px;
     margin-bottom: 12px;
     padding-left: 14px;
     padding-right: 14px;
   }
 
-  /* Center the button row */
-    .filter-row {
+  .filter-row {
     display: flex;
-    justify-content: flex-start;   /* left-aligns the button */
+    justify-content: flex-start;
     width: 100%;
     margin-top: 16px;
     margin-bottom: 12px;
   }
 }
 
-  /* Shorter label on mobile */
-  #filterToggle {
-    font-size: 0.9rem;
-  }
+/* Shorter label on mobile */
+#filterToggle {
+  font-size: 0.9rem;
+}
 
-  /* Highlighted card border thicker on mobile */
-  .my-item {
-    border-width: 3px;
-  }
-
+/* Highlighted card border thicker on mobile */
+.my-item {
+  border-width: 3px;
+}
 
 /* Admin buttons hidden by default */
 .admin-only {
@@ -283,6 +283,7 @@ h2 {
   background: #f4f4f4;
   border-radius: 6px;
 }
+
 /* CATEGORY HEADERS */
 .category-header {
   background: #e8e0f5;
@@ -320,6 +321,7 @@ h2 {
     font-size: 0.95rem;
   }
 }
+
 /* EDIT BUTTON — GREEN */
 .button.edit-btn {
   background-color: #28a745;
@@ -337,23 +339,27 @@ h2 {
 .button.delete-btn:hover {
   background-color: #c82333;
 }
+
 .inventory-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
 }
+
 #adminButtons {
-  margin-bottom: 16px;   /* creates space BELOW Add New Item / Export Audit */
+  margin-bottom: 16px;
 }
+
 .item-photo {
-  max-width: 200px;   /* or 300px, whatever feels right */
+  max-width: 200px;
   width: 100%;
   height: auto;
   border-radius: 8px;
   object-fit: cover;
-  display: block;     /* keeps layout tidy */
+  display: block;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -382,6 +388,7 @@ h2 {
 #logoutBtn:hover {
   background: #e6e6e6;
 }
+
 .user-row {
   display: flex;
   justify-content: space-between;
@@ -393,20 +400,18 @@ h2 {
 .user-row button {
   margin-left: 20px;
 }
+
 .add-user-row {
   display: flex;
   gap: 10px;
   margin: 10px 0 20px 0;
 }
-#userAdminModal .modal-content {
-  width: 500px;        /* wider modal */
-  max-width: 90%;      /* still responsive */
-}
+
 #userAdminModal .modal-content {
   width: 600px;
   max-width: 95%;
 }
-.user-row span {
-  white-space: nowrap;   /* prevent wrapping */
-}
 
+.user-row span {
+  white-space: nowrap;
+}
