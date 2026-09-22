@@ -570,3 +570,9 @@ h2 {
 .storage-link:hover {
   color: #e6e6e6;        /* subtle hover */
 }
+/* Align Logout button and Storage link perfectly on the same baseline */
+#logoutBtn,
+.storage-link {
+  vertical-align: middle;
+  line-height: 1.2;
+}
