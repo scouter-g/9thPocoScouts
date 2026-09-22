@@ -564,7 +564,7 @@ h2 {
 .storage-link {
   color: #ffffff;        /* white text */
   text-decoration: none; /* remove underline */
-  font-weight: bold;     /* optional: matches Logout */
+  font-weight: normal;     /* optional: matches Logout */
 }
 
 .storage-link:hover {
