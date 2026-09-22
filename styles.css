@@ -514,3 +514,40 @@ h2 {
     width: 100%;
   }
 }
+/* --- HEADER FIX FOR DESKTOP + MOBILE --- */
+
+/* Desktop: Title on first line, user info + buttons on second line */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Row containing user info + buttons */
+.header-user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Group buttons together */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .header-user-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-buttons {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
