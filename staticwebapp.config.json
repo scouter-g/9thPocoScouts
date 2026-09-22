@@ -20,7 +20,13 @@
       }
     }
   },
-
+  "routes": [
+    {
+      "route": "/docs/storage-access-instructions.pdf",
+      "allowedRoles": ["authenticated"]
+    }
+  ],
+  
   "roles": [
     { "name": "admin" },
     { "name": "user" }
