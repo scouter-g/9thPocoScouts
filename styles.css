@@ -444,7 +444,17 @@ h2 {
   cursor: pointer;
 }
 
+/* Hover for both */
 .header-right #logoutBtn:hover,
 .header-right a.storage-link:hover {
   background: #e0e0e0;
+}
+
+/* Make Storage Facility Instructions stand out */
+.header-right a.storage-link {
+  background: #d6d6d6;   /* darker grey */
+}
+
+.header-right a.storage-link:hover {
+  background: #c8c8c8;   /* darker hover */
 }
