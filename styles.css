@@ -576,3 +576,7 @@ h2 {
   vertical-align: middle;
   line-height: 1.2;
 }
+.storage-link {
+  display: inline-flex;
+  align-items: center;
+}
