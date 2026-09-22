@@ -10,22 +10,22 @@
 <body>
 
   <!-- HEADER -->
-  <header class="header">
-    <div class="header-left">
-      <h1>9th PoCo Scouts Equipment Inventory</h1>
-      <div id="userDisplay" class="user-info"></div>
-    </div>
+<header class="header">
 
-    <div class="header-right">
+  <h1>9th PoCo Scouts Equipment Inventory</h1>
+
+  <div class="header-user-row">
+    <div id="userDisplay" class="user-info"></div>
+
+    <div class="header-buttons">
       <button id="logoutBtn" onclick="logout()">Logout</button>
-
-      <a href="/docs/storage-access-instructions.pdf" 
-        target="_blank" 
-        class="storage-link">
+      <a href="/docs/storage-access-instructions.pdf" target="_blank" class="storage-link">
         Storage Facility Instructions
       </a>
     </div>
-  </header>
+  </div>
+
+</header>
 
   <!-- ⭐ HIDE ALL UI UNTIL AUTHORIZED ⭐ -->
   <div id="appContainer" style="display:none;">
