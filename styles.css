@@ -560,3 +560,13 @@ h2 {
 .header-right a.storage-link:hover {
   color: #e6e6e6;        /* slightly lighter on hover */
 }
+/* Make Storage Facility Instructions link white */
+.storage-link {
+  color: #ffffff;        /* white text */
+  text-decoration: none; /* remove underline */
+  font-weight: bold;     /* optional: matches Logout */
+}
+
+.storage-link:hover {
+  color: #e6e6e6;        /* subtle hover */
+}
