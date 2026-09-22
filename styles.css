@@ -478,3 +478,39 @@ h2 {
     gap: 10px;
   }
 }
+/* Fix header layout on desktop and mobile */
+.header {
+  display: flex;
+  flex-direction: column;     /* stack title + user row */
+  align-items: flex-start;
+  gap: 8px;                   /* spacing between title and user row */
+}
+
+/* Keep user info + buttons on one row */
+.header-left,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Make header-left take full width so header-right sits beside it */
+.header-left {
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+
+  .header-left {
+    flex-direction: column;   /* stack title + logged-in text */
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .header-right {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
