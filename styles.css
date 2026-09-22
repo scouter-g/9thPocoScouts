@@ -551,3 +551,12 @@ h2 {
     width: 100%;
   }
 }
+/* Make Storage Facility Instructions link white */
+.header-right a.storage-link {
+  color: #ffffff;        /* white text */
+  text-decoration: none; /* remove underline */
+}
+
+.header-right a.storage-link:hover {
+  color: #e6e6e6;        /* slightly lighter on hover */
+}
