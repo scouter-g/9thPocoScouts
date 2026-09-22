@@ -452,7 +452,7 @@ h2 {
 
 /* Make Storage Facility Instructions stand out */
 .header-right a.storage-link {
-  background: #d6d6d6;   /* darker grey */
+  background: #9e9e9e;   /* darker grey */
 }
 
 .header-right a.storage-link:hover {
