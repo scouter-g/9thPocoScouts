@@ -458,3 +458,23 @@ h2 {
 .header-right a.storage-link:hover {
   background: #c8c8c8;   /* darker hover */
 }
+/* Mobile header fix */
+@media (max-width: 600px) {
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-left {
+    width: 100%;
+  }
+
+  .header-right {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+}
