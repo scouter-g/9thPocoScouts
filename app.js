@@ -438,7 +438,7 @@ async function checkOutItem(id) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+//        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ id })
     });
@@ -460,7 +460,7 @@ async function checkInItem(id) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+//        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ id })
     });
