@@ -10,9 +10,15 @@ module.exports = async function (context, req) {
     }
 
     const principal = JSON.parse(Buffer.from(principalHeader, "base64").toString("ascii"));
+
     const email = (principal.userDetails || "").toLowerCase();
     const roles = principal.userRoles || [];
     const isAdmin = roles.includes("admin");
+
+    // ⭐ Extract display name
+    const claims = principal.claims || [];
+    const nameClaim = claims.find(c => c.typ === "name");
+    const displayName = nameClaim ? nameClaim.val : email;
 
     // ⭐ Read ID
     const id = req.query.id || (req.body && req.body.id);
@@ -45,7 +51,7 @@ module.exports = async function (context, req) {
 
     const checkedOutBy = (entity.checkedOutBy || "").toLowerCase();
 
-    // ⭐ Authorization logic
+    // ⭐ Authorization logic (email-based)
     if (!isAdmin && checkedOutBy !== email) {
       context.res = {
         status: 403,
@@ -58,9 +64,10 @@ module.exports = async function (context, req) {
     entity.status = "available";
     entity.checkedOutBy = "";
     entity.checkedOutAt = "";
+
     await tableClient.updateEntity(entity, "Replace");
 
-    // ⭐ AUDIT LOG
+    // ⭐ AUDIT LOG (now uses display name)
     const auditClient = TableClient.fromConnectionString(
       process.env.STORAGE_CONNECTION_STRING,
       "AuditLog"
@@ -70,7 +77,7 @@ module.exports = async function (context, req) {
       partitionKey: id,
       rowKey: new Date().toISOString(),
       action: "check_in",
-      user: email,
+      user: displayName,                     // <-- updated
       onBehalfOf: checkedOutBy !== email ? checkedOutBy : "",
       timestamp: new Date().toISOString()
     });
@@ -78,9 +85,6 @@ module.exports = async function (context, req) {
     context.res = { status: 200, body: "Checked in" };
 
   } catch (err) {
-    context.res = {
-      status: 500,
-      body: "Checkin failed: " + err.message
-    };
+    context.res = { status: 500, body: "Checkin failed: " + err.message };
   }
 };

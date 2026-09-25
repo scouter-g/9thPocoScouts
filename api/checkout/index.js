@@ -17,6 +17,11 @@ module.exports = async function (context, req) {
 
     const email = (user.userDetails || "").toLowerCase();
 
+    // ⭐ Extract display name from claims
+    const claims = user.claims || [];
+    const nameClaim = claims.find(c => c.typ === "name");
+    const displayName = nameClaim ? nameClaim.val : email;
+
     // ⭐ Read ID from query or body
     const id = req.query.id || (req.body && req.body.id);
     if (!id) {
@@ -48,7 +53,7 @@ module.exports = async function (context, req) {
 
     // ⭐ Update item
     entity.status = "checked_out";
-    entity.checkedOutBy = email;
+    entity.checkedOutBy = displayName;   // <-- display name stored
     entity.checkedOutAt = new Date().toISOString();
 
     await tableClient.updateEntity(entity, "Replace");
@@ -63,16 +68,13 @@ module.exports = async function (context, req) {
       partitionKey: id,
       rowKey: new Date().toISOString(),
       action: "check_out",
-      user: email,
+      user: displayName,                 // <-- display name stored
       timestamp: new Date().toISOString()
     });
 
     context.res = { status: 200, body: "Checked out" };
 
   } catch (err) {
-    context.res = {
-      status: 500,
-      body: "Checkout failed: " + err.message
-    };
+    context.res = { status: 500, body: "Checkout failed: " + err.message };
   }
 };

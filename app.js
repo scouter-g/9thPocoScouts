@@ -33,22 +33,33 @@ async function initUser() {
 
   const userDisplay = document.getElementById("userDisplay");
 
-  // --- NOT LOGGED IN ---
   if (!user) {
-    // Redirect to login page instead of showing Access Required
-    window.location.href = "/login.html";
-    return;
+  window.location.href = "/login.html";
+  return;
   }
 
-  // --- LOGGED IN ---
+
+  // Email (always present)
   currentUserEmail = user.userDetails || "";
+
+  // Determine admin role
   const isAdmin = adminUsers.includes(currentUserEmail.toLowerCase());
 
+  // Extract display name from claims
+  const claims = user.claims || [];
+  const nameClaim = claims.find(c => c.typ === "name");
+  const displayName = nameClaim ? nameClaim.val : currentUserEmail;
+
+  // Store globally so checkout can use it
+  currentUserDisplayName = displayName;
+
+  // Update header
   if (userDisplay) {
     userDisplay.textContent =
-      `Logged in as ${currentUserEmail} - ${isAdmin ? "Admin" : "User"}`;
+      `Logged in as ${displayName} - ${isAdmin ? "Admin" : "User"}`;
   }
 }
+
 
 
 async function checkAuthorization() {

@@ -14,7 +14,14 @@ module.exports = async function (context, req) {
 
   let roles = ["user"];
 
-  if (email === "scouter.greg@outlook.com") {
+  // ⭐ Add all admin emails here
+  const adminEmails = [
+    "scouter.greg@outlook.com",
+    "phil.9thpoco@gmail.com",
+    "agv9522@gmail.com"
+  ];
+
+  if (adminEmails.includes(email)) {
     roles.push("admin");
   }
 
@@ -23,3 +30,4 @@ module.exports = async function (context, req) {
     body: { roles }
   };
 };
+
