@@ -1,3 +1,4 @@
+console.log("CHECKOUT API VERSION: USING DISPLAY NAME");
 const { TableClient } = require("@azure/data-tables");
 
 module.exports = async function (context, req) {
