@@ -17,10 +17,17 @@ module.exports = async function (context, req) {
 
     const email = (user.userDetails || "").toLowerCase();
 
-    // ⭐ Extract display name from claims
+    // ⭐ Extract display name from claims (supports both formats)
     const claims = user.claims || [];
-    const nameClaim = claims.find(c => c.typ === "name");
-    const displayName = nameClaim ? nameClaim.val : email;
+
+    const nameClaim =
+      claims.find(c => c.typ === "name") ||
+      claims.find(c => c.type === "name");
+
+    const displayName =
+      nameClaim?.val ||
+      nameClaim?.value ||
+      email;
 
     // ⭐ Read ID from query or body
     const id = req.query.id || (req.body && req.body.id);
