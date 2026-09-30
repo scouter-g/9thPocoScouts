@@ -29,6 +29,15 @@ module.exports = async function (context, req) {
       nameClaim?.val ||
       nameClaim?.value ||
       email;
+    context.res = {
+      status: 200,
+      body: {
+        displayName,
+        email,
+        claims
+      }
+    };
+    return; 
 
     context.log("Display Name:", displayName);
     context.log("Email:", email);
