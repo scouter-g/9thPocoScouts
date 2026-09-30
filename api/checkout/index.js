@@ -1,6 +1,7 @@
 console.log("CHECKOUT API VERSION: USING DISPLAY NAME");
 const { TableClient } = require("@azure/data-tables");
 
+
 module.exports = async function (context, req) {
   try {
     // ⭐ Extract SWA identity
@@ -17,18 +18,27 @@ module.exports = async function (context, req) {
     }
 
     const email = (user.userDetails || "").toLowerCase();
+    const allowedUsersClient = TableClient.fromConnectionString(
+      process.env.STORAGE_CONNECTION_STRING,
+      "AllowedUsers"
+    );
+
+    let displayName = email;
+
+    try {
+      const allowedUser = await allowedUsersClient.getEntity(
+        "user",
+        email
+      );
+
+      displayName = allowedUser.displayName || email;
+    }
+    catch {
+      context.log(`No AllowedUsers row found for ${email}`);
+    }
 
     // ⭐ Extract display name from claims (supports both formats)
-    const claims = user.claims || [];
-
-    const nameClaim =
-      claims.find(c => c.typ === "name") ||
-      claims.find(c => c.type === "name");
-
-    const displayName =
-      nameClaim?.val ||
-      nameClaim?.value ||
-      email;
+    
     
     context.log("Display Name:", displayName);
     context.log("Email:", email);
@@ -66,6 +76,7 @@ module.exports = async function (context, req) {
     // ⭐ Update item
     entity.status = "checked_out";
     entity.checkedOutBy = displayName;   // <-- display name stored
+    entity.checkedOutByEmail = email;
     entity.checkedOutAt = new Date().toISOString();
 
     await tableClient.updateEntity(entity, "Replace");
