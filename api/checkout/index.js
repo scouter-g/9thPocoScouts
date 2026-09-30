@@ -30,6 +30,10 @@ module.exports = async function (context, req) {
       nameClaim?.value ||
       email;
 
+    context.log("Display Name:", displayName);
+    context.log("Email:", email);
+    context.log("Claims:", claims);
+
     // ⭐ Read ID from query or body
     const id = req.query.id || (req.body && req.body.id);
     if (!id) {
