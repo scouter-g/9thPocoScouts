@@ -323,7 +323,10 @@ async function loadInventory() {
 
           expandedCategories.delete(categoryName);
         }
-});
+      });
+    }
+
+  });
 
   if (!container.hasChildNodes()) {
     container.innerHTML = "<p>No items match your filters.</p>";
