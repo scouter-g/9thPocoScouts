@@ -49,10 +49,12 @@ module.exports = async function (context, req) {
       return;
     }
 
-    const checkedOutBy = (entity.checkedOutBy || "").toLowerCase();
+    const checkedOutBy = entity.checkedOutBy || "";
+    const checkedOutByEmail =
+      (entity.checkedOutByEmail || "").toLowerCase();
 
     // ⭐ Authorization logic (email-based)
-    if (!isAdmin && checkedOutBy !== email) {
+    if (!isAdmin && checkedOutByEmail !== email) {
       context.res = {
         status: 403,
         body: "You can only check in items you checked out."
@@ -63,6 +65,7 @@ module.exports = async function (context, req) {
     // ⭐ Update item
     entity.status = "available";
     entity.checkedOutBy = "";
+    entity.checkedOutByEmail = "";
     entity.checkedOutAt = "";
 
     await tableClient.updateEntity(entity, "Replace");
