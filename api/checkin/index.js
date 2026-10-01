@@ -15,10 +15,25 @@ module.exports = async function (context, req) {
     const roles = principal.userRoles || [];
     const isAdmin = roles.includes("admin");
 
-    // ⭐ Extract display name
-    const claims = principal.claims || [];
-    const nameClaim = claims.find(c => c.typ === "name");
-    const displayName = nameClaim ? nameClaim.val : email;
+    // ⭐ Look up display name from AllowedUsers
+    const allowedUsersClient = TableClient.fromConnectionString(
+      process.env.STORAGE_CONNECTION_STRING,
+      "AllowedUsers"
+    );
+
+    let displayName = email;
+
+    try {
+      const allowedUser = await allowedUsersClient.getEntity(
+        "user",
+        email
+      );
+
+      displayName = allowedUser.displayName || email;
+    }
+    catch {
+      displayName = email;
+}
 
     // ⭐ Read ID
     const id = req.query.id || (req.body && req.body.id);
@@ -80,8 +95,13 @@ module.exports = async function (context, req) {
       partitionKey: id,
       rowKey: new Date().toISOString(),
       action: "check_in",
-      user: displayName,                     // <-- updated
-      onBehalfOf: checkedOutBy !== email ? checkedOutBy : "",
+      user: displayName,
+      userEmail: email,
+      onBehalfOf:
+        checkedOutByEmail &&
+        checkedOutByEmail !== email
+          ? checkedOutBy
+          : "",
       timestamp: new Date().toISOString()
     });
 
