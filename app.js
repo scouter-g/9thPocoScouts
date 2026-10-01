@@ -4,6 +4,7 @@ console.log("APP.JS LOADED");
 let currentUserEmail = "";
 let filterMyItems = false;
 let editingItemId = null;
+let expandedCategories = new Set();
 
 // Admin list
 const adminUsers = [
@@ -222,11 +223,19 @@ async function loadInventory() {
     const header = document.createElement("div");
     header.className = "category-header";
     header.dataset.category = categoryName;
-    header.innerHTML = `<span><span class="arrow">▶</span> ${categoryName} (${itemsInCategory.length})</span>`;
+    const arrowIcon = expandedCategories.has(categoryName)
+      ? "▼"
+      : "▶";
+
+    header.innerHTML =
+      `<span><span class="arrow">${arrowIcon}</span> ${categoryName} (${itemsInCategory.length})</span>`;
 
     const section = document.createElement("div");
     section.className = "category-items collapsed";
     section.id = `cat-${categoryName}`;
+    if (expandedCategories.has(categoryName)) {
+      section.classList.remove("collapsed");
+    }
 
     itemsInCategory.forEach(item => {
       const name = item.name || "";
@@ -306,13 +315,15 @@ async function loadInventory() {
         if (isCollapsed) {
           section.classList.remove("collapsed");
           arrow.textContent = "▼";
+
+          expandedCategories.add(categoryName);
         } else {
           section.classList.add("collapsed");
           arrow.textContent = "▶";
+
+          expandedCategories.delete(categoryName);
         }
-      });
-    }
-  });
+});
 
   if (!container.hasChildNodes()) {
     container.innerHTML = "<p>No items match your filters.</p>";
