@@ -195,7 +195,9 @@ async function loadInventory() {
   }
 
   const myCount = items.filter(
-    i => i.checkedOutBy && userEmail && i.checkedOutBy.toLowerCase() === userEmail.toLowerCase()
+    i => i.checkedOutByEmail &&
+        userEmail &&
+        i.checkedOutByEmail.toLowerCase() === userEmail.toLowerCase()
   ).length;
 
   const filterBtn = document.getElementById("filterToggle");
@@ -238,9 +240,16 @@ async function loadInventory() {
         name.toLowerCase().includes(searchTerm) ||
         category.toLowerCase().includes(searchTerm);
 
+      const checkedByEmail = item.checkedOutByEmail || "";
+
       const matchesMine =
         !showMine ||
-        (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase());
+        (
+          checkedByEmail &&
+          userEmail &&
+          checkedByEmail.toLowerCase() === userEmail.toLowerCase()
+        );
+
 
       if (!matchesSearch || !matchesMine) return;
 
@@ -249,7 +258,11 @@ async function loadInventory() {
 
       const isCheckedOut = status === "checked_out";
 
-      if (checkedBy && userEmail && checkedBy.toLowerCase() === userEmail.toLowerCase()) {
+      if (
+        checkedByEmail &&
+        userEmail &&
+        checkedByEmail.toLowerCase() === userEmail.toLowerCase()
+      ) {
         card.classList.add("my-item");
       }
 
