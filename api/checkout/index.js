@@ -95,13 +95,18 @@ module.exports = async function (context, req) {
       partitionKey: id,
       rowKey: new Date().toISOString(),
       action: "check_out",
-      user: displayName,                 // <-- display name stored
+      user: displayName,
+      userEmail: email,
       timestamp: new Date().toISOString()
     });
 
-    context.res = { status: 200, body: "Checked out" };
+    context.res = {
+      status: 200,
+      body: "Checked out"
+    };
 
-    catch (err) {
+    } catch (err) {
+
       context.log("FULL CHECKOUT ERROR:", err);
 
       context.res = {
@@ -109,4 +114,5 @@ module.exports = async function (context, req) {
         body: "Checkout failed: " + err.message
       };
     }
-};
+
+    };
