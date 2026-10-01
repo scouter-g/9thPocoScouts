@@ -31,10 +31,15 @@ module.exports = async function (context, req) {
         email
       );
 
+      context.log("Allowed User:", allowedUser);
+
       displayName = allowedUser.displayName || email;
     }
-    catch {
-      context.log(`No AllowedUsers row found for ${email}`);
+    catch (err) {
+      context.log("AllowedUsers lookup error:", err.message);
+
+      // fallback so checkout still works
+      displayName = email;
     }
 
     // ⭐ Extract display name from claims (supports both formats)
@@ -97,7 +102,12 @@ module.exports = async function (context, req) {
 
     context.res = { status: 200, body: "Checked out" };
 
-  } catch (err) {
-    context.res = { status: 500, body: "Checkout failed: " + err.message };
-  }
+    catch (err) {
+      context.log("FULL CHECKOUT ERROR:", err);
+
+      context.res = {
+        status: 500,
+        body: "Checkout failed: " + err.message
+      };
+    }
 };
