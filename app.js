@@ -368,8 +368,7 @@ function openAddModal() {
   document.getElementById("modalTitle").textContent = "Add New Item";
   document.getElementById("itemName").value = "";
   document.getElementById("itemCategory").value = "Cooking";
-  document.getElementById("itemSubCategory").value =
-    decodeURIComponent(encodedSubCategory || "");
+  document.getElementById("itemSubCategory").value ="";
   document.getElementById("itemStatus").value = "available";
   document.getElementById("itemImageInput").value = "";
 
@@ -427,6 +426,7 @@ async function saveItem() {
     const endpoint = editingItemId
       ? "/api/editItem"
       : "/api/addItem";
+    console.log("SAVE USING:", endpoint);
 
     const response = await fetch(endpoint, {
       method: "POST",
@@ -434,7 +434,12 @@ async function saveItem() {
       body: JSON.stringify(itemPayload)
     });
 
-    if (!response.ok) throw new Error(await response.text());
+    if (!response.ok) {
+      const msg = await response.text();
+      console.error("SAVE FAILED:", response.status, msg);
+      alert(`Save failed: ${response.status}`);
+      throw new Error(msg);
+}
 
     closeModal();
     await loadInventory();
