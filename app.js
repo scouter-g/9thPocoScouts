@@ -240,6 +240,7 @@ async function loadInventory() {
     itemsInCategory.forEach(item => {
       const name = item.name || "";
       const category = item.category || "";
+      const subCategory = item.subCategory || "";
       const status = item.status || "available";
       const checkedBy = item.checkedOutBy || "";
       const checkedDate = item.checkedOutAt ? item.checkedOutAt.split("T")[0] : "";
@@ -281,6 +282,14 @@ async function loadInventory() {
         </div>
         <div class="row"><span class="label">Name:</span><span class="value">${name}</span></div>
         <div class="row"><span class="label">Category:</span><span class="value">${category}</span></div>
+
+        ${subCategory ? `
+        <div class="row">
+          <span class="label">Type:</span>
+          <span class="value">${subCategory}</span>
+        </div>
+        ` : ""}
+
         <div class="row"><span class="label">Status:</span><span class="value">${status}</span></div>
 
         ${checkedBy ? `

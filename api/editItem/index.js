@@ -29,7 +29,7 @@ module.exports = async function (context, req) {
     }
 
     // ⭐ Pull ALL fields from body
-    const { id, name, category, status, checkedOutBy, checkedOutAt } = req.body || {};
+    const { id, name, category, subCategory,status, checkedOutBy, checkedOutAt } = req.body || {};
     if (!id) {
       context.res = { status: 400, body: "Missing id" };
       return;
@@ -56,6 +56,7 @@ module.exports = async function (context, req) {
     // ⭐ Update fields
     if (name !== undefined) entity.name = name;
     if (category !== undefined) entity.category = category;
+    if (subCategory !== undefined) entity.subCategory = subCategory;
 
     // Normalize status
     if (status !== undefined) {

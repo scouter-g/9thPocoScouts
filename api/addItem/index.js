@@ -46,7 +46,7 @@ module.exports = async function (context, req) {
     }
 
     // ⭐ Extract fields
-    const { id, name, category, status, imageUrl } = req.body || {};
+    const { id, name, category, subCategory, status, imageUrl } = req.body || {};
     if (!id || !name) {
       context.res = { status: 400, body: "Missing id or name" };
       return;
@@ -63,6 +63,7 @@ module.exports = async function (context, req) {
       rowKey: id,
       name,
       category: category || null,
+      subCategory: subCategory || null,
       status: status || "available",
       imageUrl: imageUrl || null
     };

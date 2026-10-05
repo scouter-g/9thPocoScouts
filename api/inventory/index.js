@@ -33,6 +33,7 @@ module.exports = async function (context, req) {
       id: item.rowKey,
       name: item.name || null,
       category: item.category || null,
+      subCategory: item.subCategory || null,
       status: item.status || "available",
 
       checkedOutBy: item.checkedOutBy || null,
