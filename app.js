@@ -341,7 +341,7 @@ categoryNames.forEach(categoryName => {
         card.innerHTML = `
         <div class="row">
           <img
-            src="${item.imageUrl || 'default-placeholder.png'}
+            ${item.imageUrl || 'default-placeholder.png'}
           </div>
 
           <div class="row">
