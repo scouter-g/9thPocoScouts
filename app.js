@@ -303,7 +303,7 @@ async function loadInventory() {
             : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
           }
           ${isAdmin ? `
-            <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${status}')">Edit / Add Photo</button>
+            <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${encodeURIComponent(subCategory)}', '${status}')">Edit / Add Photo</button>
             <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
           ` : ""}
           <button class="button" onclick="viewHistory('${item.id}')">History</button>
@@ -343,7 +343,7 @@ async function loadInventory() {
 }
 
 // ===== MODALS =====
-function openEditModal(id, encodedName, encodedCategory, status) {
+function openEditModal(id, encodedName, encodedCategory, encodedSubCategory, status) {
   editingItemId = id;
 
   const modalTitle = document.getElementById("modalTitle");
@@ -355,6 +355,7 @@ function openEditModal(id, encodedName, encodedCategory, status) {
   modalTitle.textContent = "Edit Item Details";
   nameInput.value = decodeURIComponent(encodedName);
   categorySelect.value = decodeURIComponent(encodedCategory);
+  document.getElementById("itemSubCategory").value = decodeURIComponent(encodedSubCategory || "");
   statusSelect.value = status;
   fileInput.value = "";
 
@@ -367,6 +368,7 @@ function openAddModal() {
   document.getElementById("modalTitle").textContent = "Add New Item";
   document.getElementById("itemName").value = "";
   document.getElementById("itemCategory").value = "Cooking";
+  document.getElementById("itemSubCategory").value = "";
   document.getElementById("itemStatus").value = "available";
   document.getElementById("itemImageInput").value = "";
 
@@ -414,6 +416,7 @@ async function saveItem() {
     id: finalId,
     name: nameValue,
     category: categoryInput.value,
+    subCategory: subCategoryInput.value.trim(),
     status: statusInput.value,
     imageUrl: imageUrl || undefined
   };
