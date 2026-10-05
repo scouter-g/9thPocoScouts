@@ -368,7 +368,8 @@ function openAddModal() {
   document.getElementById("modalTitle").textContent = "Add New Item";
   document.getElementById("itemName").value = "";
   document.getElementById("itemCategory").value = "Cooking";
-  document.getElementById("itemSubCategory").value = "";
+  document.getElementById("itemSubCategory").value =
+    decodeURIComponent(encodedSubCategory || "");
   document.getElementById("itemStatus").value = "available";
   document.getElementById("itemImageInput").value = "";
 
@@ -423,7 +424,11 @@ async function saveItem() {
   };
 
   try {
-    const response = await fetch("/api/addItem", {
+    const endpoint = editingItemId
+      ? "/api/editItem"
+      : "/api/addItem";
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(itemPayload)
