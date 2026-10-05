@@ -391,6 +391,7 @@ async function saveItem() {
   const fileInput = document.getElementById("itemImageInput");
   const nameInput = document.getElementById("itemName");
   const categoryInput = document.getElementById("itemCategory");
+  const subCategoryInput = document.getElementById("itemSubCategory");
   const statusInput = document.getElementById("itemStatus");
 
   const nameValue = nameInput.value.trim();
