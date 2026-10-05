@@ -1,4 +1,5 @@
 console.log("APP.JS LOADED");
+let expandedSubCategories = new Set();
 
 // ===== GLOBAL STATE =====
 let currentUserEmail = "";
@@ -209,133 +210,276 @@ async function loadInventory() {
   }
 
   const categories = {};
+
   items.forEach(item => {
-    const cat = item.category || "Uncategorized";
-    if (!categories[cat]) categories[cat] = [];
-    categories[cat].push(item);
+    const category = item.category || "Uncategorized";
+    const subCategory = item.subCategory || "General";
+
+    if (!categories[category]) {
+      categories[category] = {};
+    }
+
+    if (!categories[category][subCategory]) {
+      categories[category][subCategory] = [];
+    }
+
+    categories[category][subCategory].push(item);
   });
 
-  const categoryNames = Object.keys(categories).sort((a, b) => a.localeCompare(b));
+  const categoryNames = Object.keys(categories)
+  .sort((a, b) => a.localeCompare(b));
 
-  categoryNames.forEach(categoryName => {
-    const itemsInCategory = categories[categoryName];
+categoryNames.forEach(categoryName => {
 
-    const header = document.createElement("div");
-    header.className = "category-header";
-    header.dataset.category = categoryName;
-    const arrowIcon = expandedCategories.has(categoryName)
+  const subCategories = categories[categoryName];
+
+  const header = document.createElement("div");
+  header.className = "category-header";
+
+  const arrowIcon =
+    expandedCategories.has(categoryName)
       ? "▼"
       : "▶";
 
-    header.innerHTML =
-      `<span><span class="arrow">${arrowIcon}</span> ${categoryName} (${itemsInCategory.length})</span>`;
+  const itemCount = Object.values(subCategories)
+    .reduce((sum, arr) => sum + arr.length, 0);
 
-    const section = document.createElement("div");
-    section.className = "category-items collapsed";
-    section.id = `cat-${categoryName}`;
-    if (expandedCategories.has(categoryName)) {
-      section.classList.remove("collapsed");
-    }
+  header.innerHTML =
+    `<span><span class="arrow">${arrowIcon}</span> ${categoryName} (${itemCount})</span>`;
 
-    itemsInCategory.forEach(item => {
-      const name = item.name || "";
-      const category = item.category || "";
-      const subCategory = item.subCategory || "";
-      const status = item.status || "available";
-      const checkedBy = item.checkedOutBy || "";
-      const checkedDate = item.checkedOutAt ? item.checkedOutAt.split("T")[0] : "";
+  const section = document.createElement("div");
+  section.className = "category-items collapsed";
 
-      const matchesSearch =
-        !searchTerm ||
-        name.toLowerCase().includes(searchTerm) ||
-        category.toLowerCase().includes(searchTerm);
+  if (expandedCategories.has(categoryName)) {
+    section.classList.remove("collapsed");
+  }
 
-      const checkedByEmail = item.checkedOutByEmail || "";
+  Object.keys(subCategories)
+    .sort()
+    .forEach(subCategoryName => {
 
-      const matchesMine =
-        !showMine ||
-        (
-          checkedByEmail &&
-          userEmail &&
-          checkedByEmail.toLowerCase() === userEmail.toLowerCase()
-        );
+      const itemsInSubCategory =
+        subCategories[subCategoryName];
 
+      const subKey =
+        `${categoryName}|${subCategoryName}`;
 
-      if (!matchesSearch || !matchesMine) return;
+      const subHeader =
+        document.createElement("div");
 
-      const card = document.createElement("div");
-      card.className = "inventory-card";
+      subHeader.className =
+        "subcategory-header";
 
-      const isCheckedOut = status === "checked_out";
+      const subArrow =
+        expandedSubCategories.has(subKey)
+          ? "▼"
+          : "▶";
 
-      if (
-        checkedByEmail &&
-        userEmail &&
-        checkedByEmail.toLowerCase() === userEmail.toLowerCase()
-      ) {
-        card.classList.add("my-item");
+      subHeader.innerHTML =
+        `<span><span class="arrow">${subArrow}</span> ${subCategoryName} (${itemsInSubCategory.length})</span>`;
+
+      const subSection =
+        document.createElement("div");
+
+      subSection.className =
+        "subcategory-items collapsed";
+
+      if (expandedSubCategories.has(subKey)) {
+        subSection.classList.remove("collapsed");
       }
 
-      card.innerHTML = `
-        <div class="row">
-          <img src="${item.imageUrl || 'default-placeholder.png'}" class="item-photo" alt="Item photo">
-        </div>
-        <div class="row"><span class="label">Name:</span><span class="value">${name}</span></div>
-        <div class="row"><span class="label">Category:</span><span class="value">${category}</span></div>
+      itemsInSubCategory.forEach(item => {
 
-        ${subCategory ? `
-        <div class="row">
-          <span class="label">Type:</span>
-          <span class="value">${subCategory}</span>
-        </div>
-        ` : ""}
+        const name = item.name || "";
+        const category = item.category || "";
+        const subCategory = item.subCategory || "";
+        const status = item.status || "available";
+        const checkedBy = item.checkedOutBy || "";
+        const checkedDate = item.checkedOutAt
+          ? item.checkedOutAt.split("T")[0]
+          : "";
 
-        <div class="row"><span class="label">Status:</span><span class="value">${status}</span></div>
+        const checkedByEmail =
+          item.checkedOutByEmail || "";
 
-        ${checkedBy ? `
-          <div class="row"><span class="label">Checked Out By:</span><span class="value">${checkedBy}</span></div>
-          <div class="row"><span class="label">Checked Out On:</span><span class="value">${checkedDate}</span></div>
-        ` : ""}
+        const matchesSearch =
+          !searchTerm ||
+          name.toLowerCase().includes(searchTerm) ||
+          category.toLowerCase().includes(searchTerm);
 
-        <div class="row action-row">
-          ${!isCheckedOut
-            ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
-            : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
-          }
-          ${isAdmin ? `
-            <button class="button edit-btn" onclick="openEditModal('${item.id}', '${encodeURIComponent(name)}', '${encodeURIComponent(category)}', '${encodeURIComponent(subCategory)}', '${status}')">Edit / Add Photo</button>
-            <button class="button delete-btn" onclick="deleteItem('${item.id}')">Delete</button>
+        const matchesMine =
+          !showMine ||
+          (
+            checkedByEmail &&
+            userEmail &&
+            checkedByEmail.toLowerCase() ===
+              userEmail.toLowerCase()
+          );
+
+        if (!matchesSearch || !matchesMine) {
+          return;
+        }
+
+        const card =
+          document.createElement("div");
+
+        card.className =
+          "inventory-card";
+
+        const isCheckedOut =
+          status === "checked_out";
+
+        if (
+          checkedByEmail &&
+          userEmail &&
+          checkedByEmail.toLowerCase() ===
+            userEmail.toLowerCase()
+        ) {
+          card.classList.add("my-item");
+        }
+
+        card.innerHTML = `
+          <div class="row">
+            ${item.imageUrl || 'default-placeholder.png'}
+          </div>
+
+          <div class="row">
+            <span class="label">Name:</span>
+            <span class="value">${name}</span>
+          </div>
+
+          <div class="row">
+            <span class="label">Status:</span>
+            <span class="value">${status}</span>
+          </div>
+
+          ${checkedBy ? `
+            <div class="row">
+              <span class="label">Checked Out By:</span>
+              <span class="value">${checkedBy}</span>
+            </div>
+
+            <div class="row">
+              <span class="label">Checked Out On:</span>
+              <span class="value">${checkedDate}</span>
+            </div>
           ` : ""}
-          <button class="button" onclick="viewHistory('${item.id}')">History</button>
-        </div>
-      `;
 
-      section.appendChild(card);
-    });
+          <div class="row action-row">
+            ${!isCheckedOut
+              ? `<button class="button" onclick="checkOutItem('${item.id}')">Check Out</button>`
+              : `<button class="button" onclick="checkInItem('${item.id}')">Check In</button>`
+            }
 
-    if (section.children.length > 0) {
-      container.appendChild(header);
-      container.appendChild(section);
+            ${isAdmin ? `
+              <button class="button edit-btn"
+                onclick="openEditModal(
+                  '${item.id}',
+                  '${encodeURIComponent(name)}',
+                  '${encodeURIComponent(category)}',
+                  '${encodeURIComponent(subCategory)}',
+                  '${status}'
+                )">
+                Edit / Add Photo
+              </button>
 
-      header.addEventListener("click", () => {
-        const arrow = header.querySelector(".arrow");
-        const isCollapsed = section.classList.contains("collapsed");
+              <button class="button delete-btn"
+                onclick="deleteItem('${item.id}')">
+                Delete
+              </button>
+            ` : ""}
 
-        if (isCollapsed) {
-          section.classList.remove("collapsed");
+            <button class="button"
+              onclick="viewHistory('${item.id}')">
+              History
+            </button>
+          </div>
+        `;
+
+        subSection.appendChild(card);
+      });
+
+      section.appendChild(subHeader);
+      section.appendChild(subSection);
+
+      subHeader.addEventListener("click", () => {
+
+        const arrow =
+          subHeader.querySelector(".arrow");
+
+        const collapsed =
+          subSection.classList.contains(
+            "collapsed"
+          );
+
+        if (collapsed) {
+
+          subSection.classList.remove(
+            "collapsed"
+          );
+
           arrow.textContent = "▼";
 
-          expandedCategories.add(categoryName);
+          expandedSubCategories.add(
+            subKey
+          );
+
         } else {
-          section.classList.add("collapsed");
+
+          subSection.classList.add(
+            "collapsed"
+          );
+
           arrow.textContent = "▶";
 
-          expandedCategories.delete(categoryName);
+          expandedSubCategories.delete(
+            subKey
+          );
         }
       });
-    }
 
+    });
+
+  container.appendChild(header);
+  container.appendChild(section);
+
+  header.addEventListener("click", () => {
+
+    const arrow =
+      header.querySelector(".arrow");
+
+    const collapsed =
+      section.classList.contains(
+        "collapsed"
+      );
+
+    if (collapsed) {
+
+      section.classList.remove(
+        "collapsed"
+      );
+
+      arrow.textContent = "▼";
+
+      expandedCategories.add(
+        categoryName
+      );
+
+    } else {
+
+      section.classList.add(
+        "collapsed"
+      );
+
+      arrow.textContent = "▶";
+
+      expandedCategories.delete(
+        categoryName
+      );
+    }
   });
+
+});
 
   if (!container.hasChildNodes()) {
     container.innerHTML = "<p>No items match your filters.</p>";

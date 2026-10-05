@@ -580,3 +580,24 @@ h2 {
   display: inline-flex;
   align-items: center;
 }
+.subcategory-header {
+  margin-left: 20px;
+  padding: 8px 12px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #444;
+  background-color: #f4f4f4;
+  border-left: 3px solid #999;
+}
+
+.subcategory-header:hover {
+  background-color: #eaeaea;
+}
+
+.subcategory-items {
+  margin-left: 25px;
+}
+
+.subcategory-items.collapsed {
+  display: none;
+}
